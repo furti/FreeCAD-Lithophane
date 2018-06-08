@@ -1,6 +1,20 @@
 import FreeCAD, FreeCADGui
 from PySide import QtGui
 import toolbars
+from image_viewer import ImageViewer
+
+def readImage(fileName):
+    imageReader = QtGui.QImageReader(fileName)
+
+    if imageReader.canRead():
+        image = imageReader.read() 
+
+        if image.isNull():
+            QtGui.QMessageBox.information(  QtGui.qApp.activeWindow(), "Image Read Error", "Can't read image: %s" % imageReader.errorString())
+
+        return image
+    else:
+        QtGui.QMessageBox.information(  QtGui.qApp.activeWindow(), "Image Read Error", "Can't read image: %s" % imageReader.errorString())
 
 class ImportImageCommand:
     toolbarName = 'Image_Tools'
@@ -12,7 +26,14 @@ class ImportImageCommand:
                 'ToolTip' : "Imports an image to be converted to a Lithophane"}
 
     def Activated(self):
-        FreeCAD.Console.PrintMessage('Test');
+        fileName = QtGui.QFileDialog.getOpenFileName(QtGui.qApp.activeWindow(), "Open Image", '', "Image Files (*.png *.jpg *.bmp)")[0]
+
+        if fileName is None or fileName == '':
+            FreeCAD.Console.PrintMessage('No File Selected')
+        else:
+            image = readImage(fileName)
+
+            ImageViewer(image)
 
     def IsActive(self):
         """If there is no active document we can't add a sketch to it."""
