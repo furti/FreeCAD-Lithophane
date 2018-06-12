@@ -10,10 +10,7 @@ class ImageViewer(QtGui.QDialog):
         self.imageLabel.setScaledContents(True)
         self.imageLabel.setPixmap(QtGui.QPixmap.fromImage(image))
 
-        FreeCAD.Console.PrintMessage(image)
-
         layout = QtGui.QVBoxLayout()
-
 
         self.scrollArea = QtGui.QScrollArea()
         self.scrollArea.setBackgroundRole(QtGui.QPalette.Dark)
@@ -31,6 +28,7 @@ class ImageViewer(QtGui.QDialog):
 
 if __name__ == "__main__":
     import os
+    import FreeCAD
     imageFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), './testimages/simple.png')
     FreeCAD.Console.PrintMessage(imageFile)
 
