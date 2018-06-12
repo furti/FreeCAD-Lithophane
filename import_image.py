@@ -21,6 +21,7 @@ class ImportImageCommand:
             image = lithophane_image.createImage(fileName)
             FreeCAD.ActiveDocument.recompute()
 
+
     def IsActive(self):
         """If there is no active document we can't add a sketch to it."""
         return not FreeCAD.ActiveDocument is None

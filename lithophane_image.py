@@ -1,10 +1,22 @@
 '''Holds the image data for generating the Lithophane'''
 
+from __future__ import division
 import FreeCAD, FreeCADGui
 from PySide import QtGui, QtCore
 from pivy import coin
 from image_viewer import ImageViewer
-import os
+import ReverseEngineering as Reen
+import Points
+import Mesh
+
+
+baseHeight = 0.5 # basically the height for white color
+maximumHeight = 3 # The maximum height for black colors
+
+def mmPerPixel(ppi):
+    pixelsPerMm = ppi / 25.4
+
+    return 1 / pixelsPerMm
 
 def readImage(imagePath):
     imageReader = QtGui.QImageReader(imagePath)
@@ -39,10 +51,84 @@ def imageFromBase64(base64):
     
     return QtGui.QImage.fromData(ba, 'PNG')
 
+def reducePoints(pts, columns, rows):
+    '''We can skip some points from the list when they have the same height.
+       We can simple connect to the next point later on
+    '''
+    filteredPoints = []
+
+    lastRow = rows - 1
+    lastColumn = columns - 1
+
+    FreeCAD.Console.PrintMessage(lastColumn)
+
+    for y in range(rows):
+        for x in range(columns):
+            # keep the corners as they are
+            if (x == 0 and y == 0) or (x == lastColumn and y == lastRow) or (x == 0 and y == lastRow) or (x == lastColumn and y == 0):
+                filteredPoints.append(pts[(x * rows) + y])
+            else:
+                pass
+
+    return filteredPoints
+
+def calculatePixelHeight(image, x, y):
+    '''Calculate the height of the pixel based on its lightness value.
+    Lighter colors mean lower height because the light must come through.
+    Maximum lightness 255 means the base height
+    Minium lightness 0 means the full height of base height + additional height
+    '''
+    color = QtGui.QColor(image.pixel(x, y))
+    lightness = color.lightness()
+
+    reversedLightness = (255 - lightness) # Reverse the value. Lighter means lower height
+    percentage = (100 / 255) * reversedLightness
+
+    return baseHeight + ((maximumHeight - baseHeight) * percentage) / 100
+
+def computePointCloud(image, ppi):
+        pixelSize = mmPerPixel(ppi)
+        imageSize = image.size()
+        imageHeight = imageSize.height()
+        imageWidth = imageSize.width()
+
+        cloud = Points.Points()
+
+        #pts=[(0, 0, 0), (0, imageSize.height() * pixelSize, 0), (imageSize.width() * pixelSize, imageSize.height() * pixelSize, 0), (imageSize.width() * pixelSize, 0, 0)]
+        pts = []
+
+        maxHeight = 0
+
+        FreeCAD.Console.PrintMessage(range(imageHeight - 1, -1, -1))
+        FreeCAD.Console.PrintMessage("\n")
+        
+        # QImage 0,0 is in the top left corner. Our point clouds 0,0 is in the bottom left corner
+        # So we itereate over the height in reverse order and use the imagewidth - y as coordinate.
+        # So we get 0 for the bottom row of the image
+        for y in range(imageHeight - 1, -1, -1):
+            for x in range(imageWidth):
+                pixelHeight = calculatePixelHeight(image, x, y)
+
+                if pixelHeight > maxHeight:
+                    maxHeight = pixelHeight
+
+                pts.append(App.Vector(x * pixelSize, (imageHeight - (y + 1)) * pixelSize, pixelHeight))
+
+        #pts = reducePoints(pts, imageWidth, imageHeight)
+
+        cloud.addPoints(pts)
+
+        #FreeCAD.Console.PrintMessage(maxHeight)
+        #FreeCAD.Console.PrintMessage(pts)
+
+        return cloud
+
 class LithophaneImage:
     def __init__(self, obj, imagePath):
         '''Add properties for image like path'''
         obj.addProperty("App::PropertyString","Path","LithophaneImage","Path to the original image").Path=imagePath
+        obj.addProperty("Points::PropertyPointKernel", "PointCloud", "LithophaneImage", "The PointCloud generated for the image")
+        obj.addProperty("App::PropertyInteger", "ppi", "LithophaneImage", "Pixels per Inch").ppi = 300
         obj.Proxy = self
 
         self.lastPath = imagePath
@@ -52,11 +138,17 @@ class LithophaneImage:
         '''Recompute the image when something changed'''
 
         if imageChanged(self, fp.Path):
-            FreeCAD.Console.PrintMessage("Reloading image...\n")
+            FreeCAD.Console.PrintMessage("LithophaneImage: Reloading image...\n")
             self.image = readImage(fp.Path)
             self.lastPath = fp.Path
 
-        FreeCAD.Console.PrintMessage("Recompute Python LithophaneImage feature" + str(self) + "\n")
+        FreeCAD.Console.PrintMessage("LithophaneImage: Recompute Point cloud" + str(self) + "\n")
+
+        self.PointCloud = computePointCloud(self.image, fp.ppi)
+
+        Points.show(self.PointCloud)
+        #m=Reen.triangulate(Points=self.PointCloud, SearchRadius=maximumHeight)
+        #Mesh.show(m)
 
     def __getstate__(self):
         '''Store the image as base64 inside the document'''
@@ -128,7 +220,7 @@ def createImage(imagePath):
 
 if __name__ == "__main__":
     import os
-    imagePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), './testimages/simple.png')
+    imagePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), './testimages/tini.png')
 
     imageReader = QtGui.QImageReader(imagePath)
     image = imageReader.read()
@@ -136,4 +228,4 @@ if __name__ == "__main__":
     if image.isNull():
          FreeCAD.Console.PrintMessage(imageReader.errorString())
     else:
-        createImage(imagePath)
+        createImage(imagePath).ppi = 2
