@@ -1,17 +1,15 @@
 '''Holds the image data for generating the Lithophane'''
 
 from __future__ import division
+
 import FreeCAD, FreeCADGui
 from PySide import QtGui, QtCore
 from pivy import coin
-from image_viewer import ImageViewer
-import ReverseEngineering as Reen
-import Points
-import Mesh
 
+from image_viewer import ImageViewer
 
 baseHeight = 0.5 # basically the height for white color
-maximumHeight = 0.6 # The maximum height for black colors
+maximumHeight = 3 # The maximum height for black colors
 
 def mmPerPixel(ppi):
     pixelsPerMm = ppi / 25.4
@@ -90,12 +88,13 @@ def reducePoints(pts, columns, rows):
                 if y != 0:
                     neighbours.append(pts[rowOffset - columns + x])
                 
-                FreeCAD.Console.PrintMessage("Neighbours: ")
-                FreeCAD.Console.PrintMessage(("X: " + str(x), "Y: " + str(y), actualPoint, neighbours))
-                FreeCAD.Console.PrintMessage("\n\n")
+                #FreeCAD.Console.PrintMessage("Neighbours: ")
+                #FreeCAD.Console.PrintMessage(("X: " + str(x), "Y: " + str(y), actualPoint, neighbours))
+                #FreeCAD.Console.PrintMessage("\n\n")
 
                 # Add point only if all neighbours have the same height
-                neighboursWithDifferentHeight = [n for n in neighbours if n.z != actualPoint.z]
+                neighboursWithDifferentHeight = [n for n in neighbours if n[2] != actualPoint[2]]
+                
                 if len(neighboursWithDifferentHeight) > 0:
                     filteredPoints.append(actualPoint)
 
@@ -124,9 +123,6 @@ def computePointCloud(image, ppi):
         imageHeight = imageSize.height()
         imageWidth = imageSize.width()
 
-        cloud = Points.Points()
-
-        #pts=[(0, 0, 0), (0, imageSize.height() * pixelSize, 0), (imageSize.width() * pixelSize, imageSize.height() * pixelSize, 0), (imageSize.width() * pixelSize, 0, 0)]
         pts = []
 
         maxHeight = 0
@@ -143,20 +139,15 @@ def computePointCloud(image, ppi):
 
                 pts.append((x * pixelSize, (imageHeight - (y + 1)) * pixelSize, pixelHeight))
 
-        #pts = reducePoints(pts, imageWidth, imageHeight)
-
-        cloud.addPoints(pts)
-
         #FreeCAD.Console.PrintMessage(maxHeight)
-        FreeCAD.Console.PrintMessage(pts)
+        #FreeCAD.Console.PrintMessage(pts)
 
-        return cloud
+        return (pts, maxHeight)
 
 class LithophaneImage:
     def __init__(self, obj, imagePath):
         '''Add properties for image like path'''
         obj.addProperty("App::PropertyString","Path","LithophaneImage","Path to the original image").Path=imagePath
-        obj.addProperty("Points::PropertyPointKernel", "PointCloud", "LithophaneImage", "The PointCloud generated for the image")
         obj.addProperty("App::PropertyInteger", "ppi", "LithophaneImage", "Pixels per Inch").ppi = 300
         obj.Proxy = self
 
@@ -171,20 +162,24 @@ class LithophaneImage:
             self.image = readImage(fp.Path)
             self.lastPath = fp.Path
 
+        imageSize = self.image.size()
+        self.imageHeight = imageSize.height()
+        self.imageWidth = imageSize.width()
+
         FreeCAD.Console.PrintMessage("LithophaneImage: Recompute Point cloud" + str(self) + "\n")
 
-        self.PointCloud = computePointCloud(self.image, fp.ppi)
+        pointData = computePointCloud(self.image, fp.ppi)
+        #pts = reducePoints(pointData[0], self.imageHeight, self.imageWidth)
 
-        Points.show(self.PointCloud)
-        m=Reen.triangulate(Points=self.PointCloud, SearchRadius=2, KSearch=10)
-        Mesh.show(m)
+        self.PointCloud = pointData[0]
+        self.maxHeight = pointData[1]
 
     def __getstate__(self):
         '''Store the image as base64 inside the document'''
 
         base64ImageOriginal = imgToBase64(self.image)
        
-        return (base64ImageOriginal, self.lastPath)
+        return (base64ImageOriginal, self.lastPath, self.PointCloud, self.maxHeight)
  
     def __setstate__(self,state):
         '''Restore the state'''
@@ -193,6 +188,12 @@ class LithophaneImage:
 
         self.image = imageFromBase64(base64ImageOriginal)
         self.lastPath = state[1]
+        self.PointCloud = state[2]
+        self.maxHeight = state[3]
+
+        imageSize = self.image.size()
+        self.imageHeight = imageSize.height()
+        self.imageWidth = imageSize.width()
 
         return None
 
