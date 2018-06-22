@@ -11,7 +11,7 @@ import Mesh
 
 
 baseHeight = 0.5 # basically the height for white color
-maximumHeight = 3 # The maximum height for black colors
+maximumHeight = 0.6 # The maximum height for black colors
 
 def mmPerPixel(ppi):
     pixelsPerMm = ppi / 25.4
@@ -60,15 +60,47 @@ def reducePoints(pts, columns, rows):
     lastRow = rows - 1
     lastColumn = columns - 1
 
-    FreeCAD.Console.PrintMessage(lastColumn)
-
+    
     for y in range(rows):
+        rowOffset = y * columns
+
         for x in range(columns):
+            actualPoint = pts[rowOffset + x]
+            
             # keep the corners as they are
             if (x == 0 and y == 0) or (x == lastColumn and y == lastRow) or (x == 0 and y == lastRow) or (x == lastColumn and y == 0):
-                filteredPoints.append(pts[(x * rows) + y])
+                filteredPoints.append(actualPoint)
             else:
+                # find neighbours
+                neighbours = []
+
+                # Same row prev column
+                if x != 0:
+                    neighbours.append(pts[rowOffset + x - 1])
+                
+                # Same row next column
+                if x < lastColumn:
+                    neighbours.append(pts[rowOffset + x + 1])
+
+                # Same column next row
+                if y < lastRow:
+                    neighbours.append(pts[rowOffset + columns + x])
+
+                # Same column prev row
+                if y != 0:
+                    neighbours.append(pts[rowOffset - columns + x])
+                
+                FreeCAD.Console.PrintMessage("Neighbours: ")
+                FreeCAD.Console.PrintMessage(("X: " + str(x), "Y: " + str(y), actualPoint, neighbours))
+                FreeCAD.Console.PrintMessage("\n\n")
+
+                # Add point only if all neighbours have the same height
+                neighboursWithDifferentHeight = [n for n in neighbours if n.z != actualPoint.z]
+                if len(neighboursWithDifferentHeight) > 0:
+                    filteredPoints.append(actualPoint)
+
                 pass
+
 
     return filteredPoints
 
@@ -99,9 +131,6 @@ def computePointCloud(image, ppi):
 
         maxHeight = 0
 
-        FreeCAD.Console.PrintMessage(range(imageHeight - 1, -1, -1))
-        FreeCAD.Console.PrintMessage("\n")
-        
         # QImage 0,0 is in the top left corner. Our point clouds 0,0 is in the bottom left corner
         # So we itereate over the height in reverse order and use the imagewidth - y as coordinate.
         # So we get 0 for the bottom row of the image
@@ -112,14 +141,14 @@ def computePointCloud(image, ppi):
                 if pixelHeight > maxHeight:
                     maxHeight = pixelHeight
 
-                pts.append(App.Vector(x * pixelSize, (imageHeight - (y + 1)) * pixelSize, pixelHeight))
+                pts.append((x * pixelSize, (imageHeight - (y + 1)) * pixelSize, pixelHeight))
 
         #pts = reducePoints(pts, imageWidth, imageHeight)
 
         cloud.addPoints(pts)
 
         #FreeCAD.Console.PrintMessage(maxHeight)
-        #FreeCAD.Console.PrintMessage(pts)
+        FreeCAD.Console.PrintMessage(pts)
 
         return cloud
 
@@ -147,8 +176,8 @@ class LithophaneImage:
         self.PointCloud = computePointCloud(self.image, fp.ppi)
 
         Points.show(self.PointCloud)
-        #m=Reen.triangulate(Points=self.PointCloud, SearchRadius=maximumHeight)
-        #Mesh.show(m)
+        m=Reen.triangulate(Points=self.PointCloud, SearchRadius=2, KSearch=10)
+        Mesh.show(m)
 
     def __getstate__(self):
         '''Store the image as base64 inside the document'''
