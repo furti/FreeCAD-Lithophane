@@ -3,6 +3,7 @@
 from __future__ import division
 
 import FreeCAD, FreeCADGui
+import Points
 from PySide import QtGui, QtCore
 from pivy import coin
 
@@ -117,7 +118,7 @@ def calculatePixelHeight(image, x, y):
 
     return baseHeight + ((maximumHeight - baseHeight) * percentage) / 100
 
-def computePointCloud(image, ppi):
+def computePoints(image, ppi):
         pixelSize = mmPerPixel(ppi)
         imageSize = image.size()
         imageHeight = imageSize.height()
@@ -144,16 +145,23 @@ def computePointCloud(image, ppi):
 
         return (pts, maxHeight)
 
+def showPointCloud(pts, name):
+    pointCloud = Points.Points()
+    pointCloud.addPoints(pts)
+
+    Points.show(pointCloud, name)
+
 class LithophaneImage:
     def __init__(self, obj, imagePath):
         '''Add properties for image like path'''
         obj.addProperty("App::PropertyString","Path","LithophaneImage","Path to the original image").Path=imagePath
         obj.addProperty("App::PropertyInteger", "ppi", "LithophaneImage", "Pixels per Inch").ppi = 300
+        obj.addProperty("App::PropertyBool", "DisplayPointCloud", "LithophaneImage", "Display Point Cloud").DisplayPointCloud = False
         obj.Proxy = self
 
         self.lastPath = imagePath
+        self.pointCloudName = None
 
- 
     def execute(self, fp):
         '''Recompute the image when something changed'''
 
@@ -162,24 +170,31 @@ class LithophaneImage:
             self.image = readImage(fp.Path)
             self.lastPath = fp.Path
 
-        imageSize = self.image.size()
-        self.imageHeight = imageSize.height()
-        self.imageWidth = imageSize.width()
+            imageSize = self.image.size()
+            self.imageHeight = imageSize.height()
+            self.imageWidth = imageSize.width()
 
         FreeCAD.Console.PrintMessage("LithophaneImage: Recompute Point cloud" + str(self) + "\n")
 
-        pointData = computePointCloud(self.image, fp.ppi)
+        pointData = computePoints(self.image, fp.ppi)
         #pts = reducePoints(pointData[0], self.imageHeight, self.imageWidth)
 
-        self.PointCloud = pointData[0]
+        self.points = pointData[0]
         self.maxHeight = pointData[1]
+
+        if fp.DisplayPointCloud:
+            self.pointCloudName = 'ImagePointCloud'
+            pointCloud = showPointCloud(self.points, self.pointCloudName)
+        elif self.pointCloudName is not None:
+            FreeCAD.ActiveDocument.removeObject(self.pointCloudName)
+            self.pointCloudName = None
 
     def __getstate__(self):
         '''Store the image as base64 inside the document'''
 
         base64ImageOriginal = imgToBase64(self.image)
        
-        return (base64ImageOriginal, self.lastPath, self.PointCloud, self.maxHeight)
+        return (base64ImageOriginal, self.lastPath, self.points, self.maxHeight)
  
     def __setstate__(self,state):
         '''Restore the state'''
@@ -188,7 +203,7 @@ class LithophaneImage:
 
         self.image = imageFromBase64(base64ImageOriginal)
         self.lastPath = state[1]
-        self.PointCloud = state[2]
+        self.points = state[2]
         self.maxHeight = state[3]
 
         imageSize = self.image.size()

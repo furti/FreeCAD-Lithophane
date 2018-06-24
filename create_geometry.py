@@ -102,13 +102,13 @@ class CreateGeometryCommand:
 
           return
         
-        wires = makeWires(lithophaneImage.PointCloud, lithophaneImage.imageWidth, lithophaneImage.imageHeight)
+        wires = makeWires(lithophaneImage.points, lithophaneImage.imageWidth, lithophaneImage.imageHeight)
         FreeCAD.ActiveDocument.recompute()
         
         loft = makeLoft(wires, 'ImagePlane')
         FreeCAD.ActiveDocument.recompute()
         
-        block = makeBlockBase(lithophaneImage.PointCloud, lithophaneImage.maxHeight)
+        block = makeBlockBase(lithophaneImage.points, lithophaneImage.maxHeight)
         FreeCAD.ActiveDocument.recompute()
         
         s = performSlice(block, loft)
