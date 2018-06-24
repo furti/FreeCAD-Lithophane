@@ -3,7 +3,6 @@
 from __future__ import division
 
 import FreeCAD, FreeCADGui
-import Points
 from PySide import QtGui, QtCore
 from pivy import coin
 
@@ -145,18 +144,11 @@ def computePoints(image, ppi):
 
         return (pts, maxHeight)
 
-def showPointCloud(pts, name):
-    pointCloud = Points.Points()
-    pointCloud.addPoints(pts)
-
-    Points.show(pointCloud, name)
-
 class LithophaneImage:
     def __init__(self, obj, imagePath):
         '''Add properties for image like path'''
         obj.addProperty("App::PropertyString","Path","LithophaneImage","Path to the original image").Path=imagePath
         obj.addProperty("App::PropertyInteger", "ppi", "LithophaneImage", "Pixels per Inch").ppi = 300
-        obj.addProperty("App::PropertyBool", "DisplayPointCloud", "LithophaneImage", "Display Point Cloud").DisplayPointCloud = False
         obj.Proxy = self
 
         self.lastPath = imagePath
@@ -181,13 +173,6 @@ class LithophaneImage:
 
         self.points = pointData[0]
         self.maxHeight = pointData[1]
-
-        if fp.DisplayPointCloud:
-            self.pointCloudName = 'ImagePointCloud'
-            pointCloud = showPointCloud(self.points, self.pointCloudName)
-        elif self.pointCloudName is not None:
-            FreeCAD.ActiveDocument.removeObject(self.pointCloudName)
-            self.pointCloudName = None
 
     def __getstate__(self):
         '''Store the image as base64 inside the document'''

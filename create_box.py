@@ -6,23 +6,8 @@ from BOPTools import SplitFeatures
 import PartDesignGui
 from PySide import QtGui
 
+import lithophane_utils
 from lithophane_image import LithophaneImage
-
-def findSelectedImage():
-  selection = FreeCADGui.Selection.getSelection()
-  
-  if len(selection) != 1:
-    return None
-  
-  selectedObject = selection[0]
-
-  if selectedObject.Proxy is None:
-    return None
-
-  #if not isinstance(selectedObject.Proxy, LithophaneImage):
-  #  return None
-  
-  return selection[0].Proxy
 
 def makeWires(points, columns, rows):
     imagePlaneWires = []
@@ -96,7 +81,7 @@ class CreateGeometryCommand:
                 'ToolTip' : "Creates the geometry of the selected Lithophane Image in the shape of a box"}
 
     def Activated(self):
-        lithophaneImage = findSelectedImage()
+        lithophaneImage = lithophane_utils.findSelectedImage()
 
         if lithophaneImage is None:
           QtGui.QMessageBox.information(QtGui.qApp.activeWindow(), "No LithophaneImage selected", "Select exactly one LithophaneImage to continue")
@@ -119,10 +104,7 @@ class CreateGeometryCommand:
 
         imagePart = downgradeSlice(s)
 
-        FreeCAD.ActiveDocument.recompute()
-        FreeCADGui.updateGui()
-        Gui.activeDocument().activeView().viewAxonometric()
-        FreeCADGui.SendMsgToActiveView("ViewFit")
+        lithophane_utils.recomputeView()
     
     def IsActive(self):
         """There should be at least an active document."""
