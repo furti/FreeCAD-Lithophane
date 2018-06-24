@@ -1,7 +1,8 @@
 '''Creates the wires and part objects'''
 
 import FreeCAD, FreeCADGui
-import Draft, Part, BOPTools
+import Draft, Part
+from BOPTools import SplitFeatures
 import PartDesignGui
 from PySide import QtGui
 
@@ -61,7 +62,7 @@ def makeBlockBase(points, maxHeight):
   return block
   
 def performSlice(imageBase, imagePlane):
-  s = BOPTools.SplitFeatures.makeSlice(name= 'Slice')
+  s = SplitFeatures.makeSlice(name= 'Slice')
   s.Base = imageBase
   s.Tools = imagePlane
   s.Mode = 'Split'
@@ -129,6 +130,10 @@ class CreateGeometryCommand:
 
 
 if __name__ == "__main__":
+    bop = __import__("BOPTools")
+    bop.importAll()
+    bop.addCommands()
+
     command = CreateGeometryCommand();
     
     if command.IsActive():
