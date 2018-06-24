@@ -8,6 +8,7 @@ from PySide import QtGui
 
 import lithophane_utils
 from lithophane_image import LithophaneImage
+from utils.timer import Timer, computeOverallTime
 
 def makeWires(points, columns, rows):
     imagePlaneWires = []
@@ -87,24 +88,42 @@ class CreateGeometryCommand:
           QtGui.QMessageBox.information(QtGui.qApp.activeWindow(), "No LithophaneImage selected", "Select exactly one LithophaneImage to continue")
 
           return
+
+        timers = []
         
+        timers.append(Timer('Creating Wires'))
         wires = makeWires(lithophaneImage.points, lithophaneImage.imageWidth, lithophaneImage.imageHeight)
         FreeCAD.ActiveDocument.recompute()
+        timers[-1].stop()
         
+        timers.append(Timer('Creating ImagePlane'))
         loft = makeLoft(wires, 'ImagePlane')
         FreeCAD.ActiveDocument.recompute()
+        timers[-1].stop()
         
+        timers.append(Timer('Creating ImageBase'))
         block = makeBlockBase(lithophaneImage.points, lithophaneImage.maxHeight)
         FreeCAD.ActiveDocument.recompute()
+        timers[-1].stop()
         
+        timers.append(Timer('Slicing Image'))
         s = performSlice(block, loft)
+        FreeCAD.ActiveDocument.recompute()
+        timers[-1].stop()
+
+        timers.append(Timer('Hiding Elements'))
         hideElements(wires)
         hideElements([loft, block])
         FreeCAD.ActiveDocument.recompute()
+        timers[-1].stop()
 
+        timers.append(Timer('Downgrading Slice'))
         imagePart = downgradeSlice(s)
-
         lithophane_utils.recomputeView()
+        timers[-1].stop()
+
+        FreeCAD.Console.PrintMessage('Creating Boxy image took %.3f s' % (computeOverallTime(timers)))
+
     
     def IsActive(self):
         """There should be at least an active document."""
