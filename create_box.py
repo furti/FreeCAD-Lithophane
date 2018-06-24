@@ -88,12 +88,12 @@ def hideElements(elements):
 
 class CreateGeometryCommand:
     toolbarName = 'Image_Tools'
-    commandName = 'Create_Geometry'
+    commandName = 'Create_Box'
 
     def GetResources(self):
         # Add pixmap some time 'Pixmap'  : 'My_Command_Icon
-        return {'MenuText': "Create Geometry",
-                'ToolTip' : "Creates the geometry of the selected Lithophane Image"}
+        return {'MenuText': "Create Box",
+                'ToolTip' : "Creates the geometry of the selected Lithophane Image in the shape of a box"}
 
     def Activated(self):
         lithophaneImage = findSelectedImage()
