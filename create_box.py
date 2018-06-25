@@ -1,76 +1,95 @@
 '''Creates the wires and part objects'''
 
 import FreeCAD, FreeCADGui
-import Draft, Part
-from BOPTools import SplitFeatures
-import PartDesignGui
+import Mesh, Part
 from PySide import QtGui
 
 import lithophane_utils
-from lithophane_image import LithophaneImage
 from utils.timer import Timer, computeOverallTime
+from utils.geometry_utils import pointCloudToLines
 
-def makeWires(points, columns, rows):
-    imagePlaneWires = []
+def makeBlockBase(lines):
+    facets = []
 
-    for row in range(rows):
-        rowOffset = row * columns
-        pointsOfRow = []
+    # add the bottom rectangle
+    bottomLeftCorner = lithophane_utils.vectorAtGround(lines[0][0])
+    bottomRightCorner = lithophane_utils.vectorAtGround(lines[0][-1])
+    topRightCorner = lithophane_utils.vectorAtGround(lines[-1][-1])
+    topLeftCorner = lithophane_utils.vectorAtGround(lines[-1][0])
 
-        for column in range(columns):
-            point = points[rowOffset + column]
+    facets.extend([bottomLeftCorner, topLeftCorner, bottomRightCorner])
+    facets.extend([bottomRightCorner, topLeftCorner, topRightCorner])
 
-            pointsOfRow.append(point)
+    for lineNumber, actualLine in enumerate(lines):
+        # Need to process all the points on the first and last line
+        if lineNumber == 0 or lineNumber == len(lines) - 1:
+            for rowNumber, actualPoint in enumerate(actualLine):
+                # No need to perform operations on the last row
+                if rowNumber == len(actualLine) - 1:
+                  break
+                
+                nextPoint = actualLine[rowNumber + 1]
 
-        imagePlaneWires.append(Draft.makeWire(pointsOfRow, closed=False, face=False, support=None))
+                bottomLeft = lithophane_utils.vectorAtGround(actualPoint)
+                bottomRight = lithophane_utils.vectorAtGround(nextPoint)
+                topRight = nextPoint
+                topLeft = actualPoint
 
-    return imagePlaneWires
+                facets.extend([bottomLeft, bottomRight, topLeft])
+                facets.extend([bottomRight, topRight, topLeft])
+        
+        # Only use the first and last point for all other rows
+        if lineNumber > 0:
+            previousLine = lines[lineNumber - 1]
+            
+            firstPoint = actualLine[0]
+            prevFirstPoint = previousLine[0]
+            lastPoint = actualLine[-1]
+            prevLastPoint = previousLine[-1]
 
-def makeLoft(wires, name):
-  loft=FreeCAD.activeDocument().addObject('Part::Loft', name)
-  loft.Sections=wires
-  loft.Ruled = True
 
-  return loft
+            bottomLeft1 = lithophane_utils.vectorAtGround(firstPoint)
+            bottomRight1 = lithophane_utils.vectorAtGround(prevFirstPoint)
+            topRight1 = prevFirstPoint
+            topLeft1 = firstPoint
 
-def makeBlockBase(points, maxHeight):
-  firstPoint = points[0]
-  lastPoint = points[-1]
+            facets.extend([bottomRight1, topRight1, bottomLeft1])
+            facets.extend([topRight1, topLeft1, bottomLeft1])
 
-  length = lastPoint[0] - firstPoint[0]
-  width = lastPoint[1] - firstPoint[1]
+            bottomLeft2 = lithophane_utils.vectorAtGround(prevLastPoint)
+            bottomRight2 = lithophane_utils.vectorAtGround(lastPoint)
+            topRight2 = lastPoint
+            topLeft2 = prevLastPoint
 
-  block = App.ActiveDocument.addObject("Part::Box","ImageBase")
-  block.Length = length
-  block.Width = width
-  block.Height = maxHeight
+            facets.extend([bottomLeft2, bottomRight2, topLeft2])
+            facets.extend([bottomRight2, topRight2, topLeft2])
+    
+    return Mesh.Mesh(facets)
 
-  return block
-  
-def performSlice(imageBase, imagePlane):
-  s = SplitFeatures.makeSlice(name= 'Slice')
-  s.Base = imageBase
-  s.Tools = imagePlane
-  s.Mode = 'Split'
-  s.Proxy.execute(s)
-  s.purgeTouched()
+def makeImagePlane(lines):
+    facets = []
 
-  return s
+    for lineNumber, actualLine in enumerate(lines):
+        # No need to perform operations on the last line at all
+        if lineNumber == len(lines) - 1:
+            break
+        
+        nextLine = lines[lineNumber + 1]
 
-def downgradeSlice(s):
-  downgrade = Draft.downgrade(s, delete=True)
-  FreeCAD.ActiveDocument.recompute()
-  
-  downgrade = Draft.downgrade(downgrade[0][0], delete=True)
-  FreeCAD.ActiveDocument.recompute()
+        for rowNumber, actualPoint in enumerate(actualLine):
+            # No need to perform operations on the last row
+            if rowNumber == len(actualLine) - 1:
+                break
+            
+            bottomLeft = actualPoint
+            bottomRight = actualLine[rowNumber + 1] # next row same line
+            topRight = nextLine[rowNumber + 1] # next row next line
+            topLeft = nextLine[rowNumber] # same row next line
 
-  image = downgrade[0][0]
+            facets.extend([bottomLeft, bottomRight, topLeft])
+            facets.extend([bottomRight, topRight, topLeft])
 
-  FreeCAD.ActiveDocument.removeObject(downgrade[0][1].Name)
-
-def hideElements(elements):
-  for element in elements:
-    element.ViewObject.Visibility = False
+    return Mesh.Mesh(facets)
 
 class CreateGeometryCommand:
     toolbarName = 'Image_Tools'
@@ -89,36 +108,48 @@ class CreateGeometryCommand:
 
           return
 
+        # todo: we should really use the mesh for creating geometry. This is way too slow.
+        # https://github.com/FreeCAD/FreeCAD/blob/master/src/Mod/Mesh/BuildRegularGeoms.py
+        # https://www.freecadweb.org/wiki/Mesh_Scripting
         timers = []
         
-        timers.append(Timer('Creating Wires'))
-        wires = makeWires(lithophaneImage.points, lithophaneImage.imageWidth, lithophaneImage.imageHeight)
-        FreeCAD.ActiveDocument.recompute()
+        timers.append(Timer('Calculating Lines from PointCloud'))
+        lines = pointCloudToLines(lithophaneImage.points)
         timers[-1].stop()
-        
+        lithophane_utils.processEvents()
+
+
         timers.append(Timer('Creating ImagePlane'))
-        loft = makeLoft(wires, 'ImagePlane')
-        FreeCAD.ActiveDocument.recompute()
+        imagePlane = makeImagePlane(lines)
         timers[-1].stop()
-        
+        lithophane_utils.processEvents()
+
         timers.append(Timer('Creating ImageBase'))
-        block = makeBlockBase(lithophaneImage.points, lithophaneImage.maxHeight)
-        FreeCAD.ActiveDocument.recompute()
+        block = makeBlockBase(lines)
         timers[-1].stop()
+        lithophane_utils.processEvents()
         
-        timers.append(Timer('Slicing Image'))
-        s = performSlice(block, loft)
-        FreeCAD.ActiveDocument.recompute()
+        timers.append(Timer('Merge Meshes'))
+        imageMesh = Mesh.Mesh()
+        imageMesh.addMesh(imagePlane)
+        imageMesh.addMesh(block)
         timers[-1].stop()
+        lithophane_utils.processEvents()
 
-        timers.append(Timer('Hiding Elements'))
-        hideElements(wires)
-        hideElements([loft, block])
-        FreeCAD.ActiveDocument.recompute()
+        timers.append(Timer('Recalculating Normals'))
+        imageMesh.harmonizeNormals()
         timers[-1].stop()
+        lithophane_utils.processEvents()
 
-        timers.append(Timer('Downgrading Slice'))
-        imagePart = downgradeSlice(s)
+        # timers.append(Timer('Creating Solid From Mesh'))
+        # shape = Part.Shape()
+        # shape.makeShapeFromMesh(imageMesh.Topology, 0.05)
+        # imageSolid = Part.makeSolid(shape)
+        # timers[-1].stop()
+
+        timers.append(Timer('Recomputing View'))
+        # Part.show(imageSolid, 'Image')
+        Mesh.show(imageMesh, 'Image')
         lithophane_utils.recomputeView()
         timers[-1].stop()
 
@@ -131,9 +162,9 @@ class CreateGeometryCommand:
 
 
 if __name__ == "__main__":
-    bop = __import__("BOPTools")
-    bop.importAll()
-    bop.addCommands()
+    #bop = __import__("BOPTools")
+    #bop.importAll()
+    #bop.addCommands()
 
     command = CreateGeometryCommand();
     

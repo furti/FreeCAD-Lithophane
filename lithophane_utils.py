@@ -1,4 +1,6 @@
 import FreeCAD, FreeCADGui
+import time
+from PySide import QtGui
 
 def recomputeView():
     FreeCAD.ActiveDocument.recompute()
@@ -21,3 +23,10 @@ def findSelectedImage():
   #  return None
   
   return selection[0].Proxy
+
+def vectorAtGround(vector):
+  return FreeCAD.Vector(vector.x, vector.y, 0)
+
+def processEvents():
+  time.sleep(0.001)
+  QtGui.QApplication.processEvents()

@@ -65,8 +65,8 @@ def reducePoints(pts, columns, rows):
         for x in range(columns):
             actualPoint = pts[rowOffset + x]
             
-            # keep the corners as they are
-            if (x == 0 and y == 0) or (x == lastColumn and y == lastRow) or (x == 0 and y == lastRow) or (x == lastColumn and y == 0):
+            # keep the borders as they are
+            if x == 0 or y == 0 or x == lastColumn or y == lastRow:
                 filteredPoints.append(actualPoint)
             else:
                 # find neighbours
@@ -93,7 +93,7 @@ def reducePoints(pts, columns, rows):
                 #FreeCAD.Console.PrintMessage("\n\n")
 
                 # Add point only if all neighbours have the same height
-                neighboursWithDifferentHeight = [n for n in neighbours if n[2] != actualPoint[2]]
+                neighboursWithDifferentHeight = [n for n in neighbours if n.z != actualPoint.z]
                 
                 if len(neighboursWithDifferentHeight) > 0:
                     filteredPoints.append(actualPoint)
@@ -137,7 +137,7 @@ def computePoints(image, ppi):
                 if pixelHeight > maxHeight:
                     maxHeight = pixelHeight
 
-                pts.append((x * pixelSize, (imageHeight - (y + 1)) * pixelSize, pixelHeight))
+                pts.append(FreeCAD.Vector(x * pixelSize, (imageHeight - (y + 1)) * pixelSize, pixelHeight))
 
         #FreeCAD.Console.PrintMessage(maxHeight)
         #FreeCAD.Console.PrintMessage(pts)
@@ -149,6 +149,7 @@ class LithophaneImage:
         '''Add properties for image like path'''
         obj.addProperty("App::PropertyString","Path","LithophaneImage","Path to the original image").Path=imagePath
         obj.addProperty("App::PropertyInteger", "ppi", "LithophaneImage", "Pixels per Inch").ppi = 300
+        obj.addProperty("App::PropertyBool", "ReducePoints", "LithophaneImage", "Remove unneeded pixels from the iamge").ReducePoints = False
         obj.Proxy = self
 
         self.lastPath = imagePath
@@ -169,9 +170,13 @@ class LithophaneImage:
         FreeCAD.Console.PrintMessage("LithophaneImage: Recompute Point cloud" + str(self) + "\n")
 
         pointData = computePoints(self.image, fp.ppi)
-        #pts = reducePoints(pointData[0], self.imageHeight, self.imageWidth)
 
-        self.points = pointData[0]
+        if(fp.ReducePoints):
+            reducedPoints = reducePoints(pointData[0], self.imageHeight, self.imageWidth)
+        else:
+            reducedPoints = pointData[0]
+
+        self.points = reducedPoints
         self.maxHeight = pointData[1]
 
     def __getstate__(self):
