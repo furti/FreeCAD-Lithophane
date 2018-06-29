@@ -3,10 +3,11 @@ import Points
 from PySide import QtGui
 
 import lithophane_utils
+from utils.geometry_utils import linesToPointCloud
 
 def showPointCloud(pts, name):
     pointCloud = Points.Points()
-    pointCloud.addPoints(pts)
+    pointCloud.addPoints(linesToPointCloud(pts))
 
     Points.show(pointCloud, name)
 
@@ -27,7 +28,7 @@ class ShowPointCloudCommand:
 
           return
         
-        showPointCloud(lithophaneImage.points, 'ImagePointCloud')
+        showPointCloud(lithophaneImage.lines, 'ImagePointCloud')
 
         lithophane_utils.recomputeView()
     

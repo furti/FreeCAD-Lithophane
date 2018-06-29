@@ -14,3 +14,7 @@ def pointCloudToLines(pointCloud):
   lines.append(line)
 
   return lines
+
+def linesToPointCloud(lines):
+  return [point for line in lines for point in line]
+  

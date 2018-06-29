@@ -2,14 +2,33 @@
 
 from __future__ import division
 
+import math
 import FreeCAD, FreeCADGui
 from PySide import QtGui, QtCore
 from pivy import coin
 
 from image_viewer import ImageViewer
+from utils.geometry_utils import pointCloudToLines
+from lithophane_utils import toChunks
 
 baseHeight = 0.5 # basically the height for white color
 maximumHeight = 3 # The maximum height for black colors
+
+class AverageVector:
+    def __init__(self):
+        self.baseVector = None
+        self.heights = []
+    
+    def add(self, vector):
+        if self.baseVector is None:
+            self.baseVector = vector
+        
+        self.heights.append(vector.z)
+    
+    def average(self):
+        averageHeight = sum(self.heights) / len(self.heights)
+
+        return FreeCAD.Vector(self.baseVector.x, self.baseVector.y, averageHeight)
 
 def mmPerPixel(ppi):
     pixelsPerMm = ppi / 25.4
@@ -117,7 +136,7 @@ def calculatePixelHeight(image, x, y):
 
     return baseHeight + ((maximumHeight - baseHeight) * percentage) / 100
 
-def computePoints(image, ppi):
+def computeLines(image, ppi):
         pixelSize = mmPerPixel(ppi)
         imageSize = image.size()
         imageHeight = imageSize.height()
@@ -139,10 +158,38 @@ def computePoints(image, ppi):
 
                 pts.append(FreeCAD.Vector(x * pixelSize, (imageHeight - (y + 1)) * pixelSize, pixelHeight))
 
+        lines = pointCloudToLines(pts)
         #FreeCAD.Console.PrintMessage(maxHeight)
         #FreeCAD.Console.PrintMessage(pts)
 
-        return (pts, maxHeight)
+        return (lines, maxHeight)
+
+def averageByNozzleSize(lines, ppi, nozzleSize):
+    if nozzleSize == 0:
+        return lines
+    
+    reducedLines = []
+    pixelSize = mmPerPixel(ppi)
+    numberOfPointsToReduce = int(round((nozzleSize.Value / pixelSize)))
+
+    for linesToCombine in toChunks(lines, numberOfPointsToReduce):
+        combined = []
+
+        for line in linesToCombine:
+            for index, rowsToCombine in enumerate(toChunks(line, numberOfPointsToReduce)):
+                if len(combined) < index + 1:
+                    combined.append(AverageVector())
+
+                for point in rowsToCombine:
+                    combined[index].add(point)
+
+                del rowsToCombine
+
+        reducedLines.append([vector.average() for vector in combined])
+        del linesToCombine
+
+
+    return reducedLines
 
 class LithophaneImage:
     def __init__(self, obj, imagePath):
@@ -150,6 +197,7 @@ class LithophaneImage:
         obj.addProperty("App::PropertyString","Path","LithophaneImage","Path to the original image").Path=imagePath
         obj.addProperty("App::PropertyInteger", "ppi", "LithophaneImage", "Pixels per Inch").ppi = 300
         obj.addProperty("App::PropertyBool", "ReducePoints", "LithophaneImage", "Remove unneeded pixels from the iamge").ReducePoints = False
+        obj.addProperty("App::PropertyLength", "NozzleSize", "LithophaneImage", "Size of your 3D printers Nozzle").NozzleSize = 0.4
         obj.Proxy = self
 
         self.lastPath = imagePath
@@ -169,14 +217,13 @@ class LithophaneImage:
 
         FreeCAD.Console.PrintMessage("LithophaneImage: Recompute Point cloud" + str(self) + "\n")
 
-        pointData = computePoints(self.image, fp.ppi)
+        pointData = computeLines(self.image, fp.ppi)
+        lines = averageByNozzleSize(pointData[0], fp.ppi, fp.NozzleSize)
 
-        if(fp.ReducePoints):
-            reducedPoints = reducePoints(pointData[0], self.imageHeight, self.imageWidth)
-        else:
-            reducedPoints = pointData[0]
+        # if(fp.ReducePoints):
+        #     points = reducePoints(points, self.imageHeight, self.imageWidth)
 
-        self.points = reducedPoints
+        self.lines = lines
         self.maxHeight = pointData[1]
 
     def __getstate__(self):
@@ -184,7 +231,7 @@ class LithophaneImage:
 
         base64ImageOriginal = imgToBase64(self.image)
        
-        return (base64ImageOriginal, self.lastPath, self.points, self.maxHeight)
+        return (base64ImageOriginal, self.lastPath, self.lines, self.maxHeight)
  
     def __setstate__(self,state):
         '''Restore the state'''
@@ -193,7 +240,7 @@ class LithophaneImage:
 
         self.image = imageFromBase64(base64ImageOriginal)
         self.lastPath = state[1]
-        self.points = state[2]
+        self.lines = state[2]
         self.maxHeight = state[3]
 
         imageSize = self.image.size()
@@ -255,7 +302,7 @@ def createImage(imagePath):
 
 if __name__ == "__main__":
     import os
-    imagePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), './testimages/tini.png')
+    imagePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), './testimages/medium.png')
 
     imageReader = QtGui.QImageReader(imagePath)
     image = imageReader.read()

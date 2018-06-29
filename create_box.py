@@ -6,7 +6,6 @@ from PySide import QtGui
 
 import lithophane_utils
 from utils.timer import Timer, computeOverallTime
-from utils.geometry_utils import pointCloudToLines
 
 def makeBlockBase(lines):
     facets = []
@@ -113,19 +112,13 @@ class CreateGeometryCommand:
         # https://www.freecadweb.org/wiki/Mesh_Scripting
         timers = []
         
-        timers.append(Timer('Calculating Lines from PointCloud'))
-        lines = pointCloudToLines(lithophaneImage.points)
-        timers[-1].stop()
-        lithophane_utils.processEvents()
-
-
         timers.append(Timer('Creating ImagePlane'))
-        imagePlane = makeImagePlane(lines)
+        imagePlane = makeImagePlane(lithophaneImage.lines)
         timers[-1].stop()
         lithophane_utils.processEvents()
 
         timers.append(Timer('Creating ImageBase'))
-        block = makeBlockBase(lines)
+        block = makeBlockBase(lithophaneImage.lines)
         timers[-1].stop()
         lithophane_utils.processEvents()
         

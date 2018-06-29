@@ -1,5 +1,5 @@
 import FreeCAD, FreeCADGui
-import time
+import time, itertools
 from PySide import QtGui
 
 def recomputeView():
@@ -30,3 +30,17 @@ def vectorAtGround(vector):
 def processEvents():
   time.sleep(0.001)
   QtGui.QApplication.processEvents()
+
+def toChunks(iterable, chunksize):
+    """
+   Splits the iterable into evenly sized chunks. The last chunk can be smaller when iterable contains not enough elements
+    """
+    i = iter(iterable)
+
+    while True:
+        wrapped_chunk = [list(itertools.islice(i, int(chunksize)))]
+
+        if not wrapped_chunk[0]:
+            break
+        
+        yield wrapped_chunk.pop()
