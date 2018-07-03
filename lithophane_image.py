@@ -159,7 +159,7 @@ def computeLines(image, ppi):
                 pts.append(FreeCAD.Vector(x * pixelSize, (imageHeight - (y + 1)) * pixelSize, pixelHeight))
 
         lines = pointCloudToLines(pts)
-        #FreeCAD.Console.PrintMessage(maxHeight)
+        #FreeCAD.Console.PrintMessage(maxHkkeight)
         #FreeCAD.Console.PrintMessage(pts)
 
         return (lines, maxHeight)
@@ -191,6 +191,36 @@ def averageByNozzleSize(lines, ppi, nozzleSize):
 
     return reducedLines
 
+def nearestLayerHeight(lines, layerHeight):
+    if layerHeight == 0:
+        return lines
+    
+    roundedLines = []
+    tolerance = 0.0001
+
+    for line in lines:
+        roundedLine = []
+
+        for point in line:
+            mod = point.z % layerHeight
+            reversedMod = layerHeight - mod
+
+            if mod > tolerance:
+                roundedZ = None
+
+                if reversedMod < mod:
+                    roundedZ = point.z + reversedMod
+                else:
+                    roundedZ = point.z - mod
+                
+                roundedLine.append(FreeCAD.Vector(point.x, point.y, roundedZ))
+            else:
+                roundedLine.append(point)
+        
+        roundedLines.append(roundedLine)
+
+    return roundedLines
+
 class LithophaneImage:
     def __init__(self, obj, imagePath):
         '''Add properties for image like path'''
@@ -198,6 +228,7 @@ class LithophaneImage:
         obj.addProperty("App::PropertyInteger", "ppi", "LithophaneImage", "Pixels per Inch").ppi = 300
         obj.addProperty("App::PropertyBool", "ReducePoints", "LithophaneImage", "Remove unneeded pixels from the iamge").ReducePoints = False
         obj.addProperty("App::PropertyLength", "NozzleSize", "LithophaneImage", "Size of your 3D printers Nozzle").NozzleSize = 0.4
+        obj.addProperty("App::PropertyLength", "LayerHeight", "LithophaneImage", "The height of a single layer your 3D Printer can print").LayerHeight = 0.1
         obj.Proxy = self
 
         self.lastPath = imagePath
@@ -219,6 +250,7 @@ class LithophaneImage:
 
         pointData = computeLines(self.image, fp.ppi)
         lines = averageByNozzleSize(pointData[0], fp.ppi, fp.NozzleSize)
+        lines = nearestLayerHeight(lines, fp.LayerHeight.Value)
 
         # if(fp.ReducePoints):
         #     points = reducePoints(points, self.imageHeight, self.imageWidth)
