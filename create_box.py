@@ -4,7 +4,7 @@ import FreeCAD, FreeCADGui
 import Mesh, Part
 from PySide import QtGui
 
-import lithophane_utils
+import lithophane_utils, toolbars
 from utils.timer import Timer, computeOverallTime
 
 def makeBlockBase(lines):

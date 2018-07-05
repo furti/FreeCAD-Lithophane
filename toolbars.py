@@ -12,3 +12,4 @@ toolbarManager = ToolbarManager()
 
 import import_image
 import create_box
+import show_pointcloud

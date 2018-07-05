@@ -2,7 +2,7 @@ import FreeCAD, FreeCADGui
 import Points
 from PySide import QtGui
 
-import lithophane_utils
+import lithophane_utils, toolbars
 from utils.geometry_utils import linesToPointCloud
 
 def showPointCloud(pts, name):
