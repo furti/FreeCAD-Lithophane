@@ -68,59 +68,60 @@ def imageFromBase64(base64):
     
     return QtGui.QImage.fromData(ba, 'PNG')
 
-def reducePoints(pts, columns, rows):
-    '''We can skip some points from the list when they have the same height.
-       We can simple connect to the next point later on
-    '''
-    filteredPoints = []
+# Deactivated for now. I think this is not needed anymore.
+# def reducePoints(pts, columns, rows):
+#     '''We can skip some points from the list when they have the same height.
+#        We can simple connect to the next point later on
+#     '''
+#     filteredPoints = []
 
-    lastRow = rows - 1
-    lastColumn = columns - 1
+#     lastRow = rows - 1
+#     lastColumn = columns - 1
 
     
-    for y in range(rows):
-        rowOffset = y * columns
+#     for y in range(rows):
+#         rowOffset = y * columns
 
-        for x in range(columns):
-            actualPoint = pts[rowOffset + x]
+#         for x in range(columns):
+#             actualPoint = pts[rowOffset + x]
             
-            # keep the borders as they are
-            if x == 0 or y == 0 or x == lastColumn or y == lastRow:
-                filteredPoints.append(actualPoint)
-            else:
-                # find neighbours
-                neighbours = []
+#             # keep the borders as they are
+#             if x == 0 or y == 0 or x == lastColumn or y == lastRow:
+#                 filteredPoints.append(actualPoint)
+#             else:
+#                 # find neighbours
+#                 neighbours = []
 
-                # Same row prev column
-                if x != 0:
-                    neighbours.append(pts[rowOffset + x - 1])
+#                 # Same row prev column
+#                 if x != 0:
+#                     neighbours.append(pts[rowOffset + x - 1])
                 
-                # Same row next column
-                if x < lastColumn:
-                    neighbours.append(pts[rowOffset + x + 1])
+#                 # Same row next column
+#                 if x < lastColumn:
+#                     neighbours.append(pts[rowOffset + x + 1])
 
-                # Same column next row
-                if y < lastRow:
-                    neighbours.append(pts[rowOffset + columns + x])
+#                 # Same column next row
+#                 if y < lastRow:
+#                     neighbours.append(pts[rowOffset + columns + x])
 
-                # Same column prev row
-                if y != 0:
-                    neighbours.append(pts[rowOffset - columns + x])
+#                 # Same column prev row
+#                 if y != 0:
+#                     neighbours.append(pts[rowOffset - columns + x])
                 
-                #FreeCAD.Console.PrintMessage("Neighbours: ")
-                #FreeCAD.Console.PrintMessage(("X: " + str(x), "Y: " + str(y), actualPoint, neighbours))
-                #FreeCAD.Console.PrintMessage("\n\n")
+#                 #FreeCAD.Console.PrintMessage("Neighbours: ")
+#                 #FreeCAD.Console.PrintMessage(("X: " + str(x), "Y: " + str(y), actualPoint, neighbours))
+#                 #FreeCAD.Console.PrintMessage("\n\n")
 
-                # Add point only if all neighbours have the same height
-                neighboursWithDifferentHeight = [n for n in neighbours if n.z != actualPoint.z]
+#                 # Add point only if all neighbours have the same height
+#                 neighboursWithDifferentHeight = [n for n in neighbours if n.z != actualPoint.z]
                 
-                if len(neighboursWithDifferentHeight) > 0:
-                    filteredPoints.append(actualPoint)
+#                 if len(neighboursWithDifferentHeight) > 0:
+#                     filteredPoints.append(actualPoint)
 
-                pass
+#                 pass
 
 
-    return filteredPoints
+#     return filteredPoints
 
 def calculatePixelHeight(image, x, y):
     '''Calculate the height of the pixel based on its lightness value.
@@ -226,7 +227,7 @@ class LithophaneImage:
         '''Add properties for image like path'''
         obj.addProperty("App::PropertyString","Path","LithophaneImage","Path to the original image").Path=imagePath
         obj.addProperty("App::PropertyInteger", "ppi", "LithophaneImage", "Pixels per Inch").ppi = 300
-        obj.addProperty("App::PropertyBool", "ReducePoints", "LithophaneImage", "Remove unneeded pixels from the iamge").ReducePoints = False
+        # obj.addProperty("App::PropertyBool", "ReducePoints", "LithophaneImage", "Remove unneeded pixels from the iamge").ReducePoints = False
         obj.addProperty("App::PropertyLength", "NozzleSize", "LithophaneImage", "Size of your 3D printers Nozzle").NozzleSize = 0.4
         obj.addProperty("App::PropertyLength", "LayerHeight", "LithophaneImage", "The height of a single layer your 3D Printer can print").LayerHeight = 0.1
         obj.Proxy = self
