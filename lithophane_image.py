@@ -9,7 +9,8 @@ from pivy import coin
 
 from image_viewer import ImageViewer
 from utils.geometry_utils import pointCloudToLines
-from lithophane_utils import toChunks, tupleToVector, vectorToTuple
+from lithophane_utils import toChunks, tupleToVector, vectorToTuple, processEvents
+from utils.timer import Timer, computeOverallTime
 
 baseHeight = 0.5 # basically the height for white color
 maximumHeight = 3 # The maximum height for black colors
@@ -238,20 +239,35 @@ class LithophaneImage:
     def execute(self, fp):
         '''Recompute the image when something changed'''
 
+        timers = []
+        
         if imageChanged(self, fp.Path):
-            FreeCAD.Console.PrintMessage("LithophaneImage: Reloading image...\n")
+            timers.append(Timer('ReloadingImage'))
             self.image = readImage(fp.Path)
             self.lastPath = fp.Path
 
             imageSize = self.image.size()
             self.imageHeight = imageSize.height()
             self.imageWidth = imageSize.width()
+            timers[-1].stop()
+            processEvents()
 
-        FreeCAD.Console.PrintMessage("LithophaneImage: Recompute Point cloud" + str(self) + "\n")
-
+        timers.append(Timer('Computing Point Cloud'))
         pointData = computeLines(self.image, fp.ppi)
+        timers[-1].stop()
+        processEvents()
+
+        timers.append(Timer('Computing Nozzle Size'))
         lines = averageByNozzleSize(pointData[0], fp.ppi, fp.NozzleSize)
+        timers[-1].stop()
+        processEvents()
+
+        timers.append(Timer('Computing Layer Height'))
         lines = nearestLayerHeight(lines, fp.LayerHeight.Value)
+        timers[-1].stop()
+        processEvents()
+
+        FreeCAD.Console.PrintMessage('Recalculating image took %.3f s' % (computeOverallTime(timers)))
 
         # if(fp.ReducePoints):
         #     points = reducePoints(points, self.imageHeight, self.imageWidth)
