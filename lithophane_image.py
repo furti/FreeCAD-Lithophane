@@ -9,7 +9,7 @@ from pivy import coin
 
 from image_viewer import ImageViewer
 from utils.geometry_utils import pointCloudToLines
-from lithophane_utils import toChunks
+from lithophane_utils import toChunks, tupleToVector, vectorToTuple
 
 baseHeight = 0.5 # basically the height for white color
 maximumHeight = 3 # The maximum height for black colors
@@ -263,8 +263,13 @@ class LithophaneImage:
         '''Store the image as base64 inside the document'''
 
         base64ImageOriginal = imgToBase64(self.image)
+
+        lineTuples = []
+
+        for line in self.lines:
+            lineTuples.append([vectorToTuple(point) for point in line])
        
-        return (base64ImageOriginal, self.lastPath, self.lines, self.maxHeight)
+        return (base64ImageOriginal, self.lastPath, lineTuples, self.maxHeight)
  
     def __setstate__(self,state):
         '''Restore the state'''
@@ -273,8 +278,11 @@ class LithophaneImage:
 
         self.image = imageFromBase64(base64ImageOriginal)
         self.lastPath = state[1]
-        self.lines = state[2]
+        self.lines = []
         self.maxHeight = state[3]
+
+        for line in state[2]:
+            self.lines.append([tupleToVector(point) for point in line])
 
         imageSize = self.image.size()
         self.imageHeight = imageSize.height()

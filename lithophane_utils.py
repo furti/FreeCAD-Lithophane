@@ -44,3 +44,9 @@ def toChunks(iterable, chunksize):
             break
         
         yield wrapped_chunk.pop()
+
+def vectorToTuple(vector):
+  return (vector.x, vector.y, vector.z)
+
+def tupleToVector(t):
+  return FreeCAD.Vector(t[0], t[1], t[2])
