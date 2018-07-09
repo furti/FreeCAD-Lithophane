@@ -12,9 +12,6 @@ from utils.geometry_utils import pointCloudToLines
 from lithophane_utils import toChunks, tupleToVector, vectorToTuple, processEvents
 from utils.timer import Timer, computeOverallTime
 
-baseHeight = 0.5 # basically the height for white color
-maximumHeight = 3 # The maximum height for black colors
-
 class AverageVector:
     def __init__(self):
         self.baseVector = None
@@ -124,7 +121,7 @@ def imageFromBase64(base64):
 
 #     return filteredPoints
 
-def calculatePixelHeight(image, x, y):
+def calculatePixelHeight(image, x, y, baseHeight, maximumHeight):
     '''Calculate the height of the pixel based on its lightness value.
     Lighter colors mean lower height because the light must come through.
     Maximum lightness 255 means the base height
@@ -136,9 +133,9 @@ def calculatePixelHeight(image, x, y):
     reversedLightness = (255 - lightness) # Reverse the value. Lighter means lower height
     percentage = (100 / 255) * reversedLightness
 
-    return baseHeight + ((maximumHeight - baseHeight) * percentage) / 100
+    return baseHeight.Value + ((maximumHeight.Value - baseHeight.Value) * percentage) / 100
 
-def computeLines(image, ppi):
+def computeLines(image, ppi, baseHeight, maximumHeight):
         pixelSize = mmPerPixel(ppi)
         imageSize = image.size()
         imageHeight = imageSize.height()
@@ -153,7 +150,7 @@ def computeLines(image, ppi):
         # So we get 0 for the bottom row of the image
         for y in range(imageHeight - 1, -1, -1):
             for x in range(imageWidth):
-                pixelHeight = calculatePixelHeight(image, x, y)
+                pixelHeight = calculatePixelHeight(image, x, y, baseHeight, maximumHeight)
 
                 if pixelHeight > maxHeight:
                     maxHeight = pixelHeight
@@ -227,10 +224,13 @@ class LithophaneImage:
     def __init__(self, obj, imagePath):
         '''Add properties for image like path'''
         obj.addProperty("App::PropertyString","Path","LithophaneImage","Path to the original image").Path=imagePath
-        obj.addProperty("App::PropertyInteger", "ppi", "LithophaneImage", "Pixels per Inch").ppi = 300
+        obj.addProperty("App::PropertyFloat", "ppi", "LithophaneImage", "Pixels per Inch").ppi = 300
         # obj.addProperty("App::PropertyBool", "ReducePoints", "LithophaneImage", "Remove unneeded pixels from the iamge").ReducePoints = False
         obj.addProperty("App::PropertyLength", "NozzleSize", "LithophaneImage", "Size of your 3D printers Nozzle").NozzleSize = 0.4
         obj.addProperty("App::PropertyLength", "LayerHeight", "LithophaneImage", "The height of a single layer your 3D Printer can print").LayerHeight = 0.1
+        obj.addProperty("App::PropertyLength", "BaseHeight", "LithophaneImage", "The height of the white color").BaseHeight = 0.5
+        obj.addProperty("App::PropertyLength", "MaximumHeight", "LithophaneImage", "The height of the black color").MaximumHeight = 3
+        
         obj.Proxy = self
 
         self.lastPath = imagePath
@@ -253,7 +253,7 @@ class LithophaneImage:
             processEvents()
 
         timers.append(Timer('Computing Point Cloud'))
-        pointData = computeLines(self.image, fp.ppi)
+        pointData = computeLines(self.image, fp.ppi, fp.BaseHeight, fp.MaximumHeight)
         timers[-1].stop()
         processEvents()
 
