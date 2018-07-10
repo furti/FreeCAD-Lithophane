@@ -1,5 +1,5 @@
 import FreeCAD, FreeCADGui
-import time, itertools
+import time, itertools, Mesh
 from PySide import QtGui
 
 def recomputeView():
@@ -23,6 +23,19 @@ def findSelectedImage():
   #  return None
   
   return selection[0].Proxy
+
+def findSelectedMesh():
+  selection = FreeCADGui.Selection.getSelection()
+  
+  if len(selection) != 1:
+    return None
+  
+  selectedObject = selection[0]
+
+  if not hasattr(selectedObject, 'Mesh'):
+    return None
+
+  return selection[0].Mesh
 
 def vectorAtGround(vector):
   return FreeCAD.Vector(vector.x, vector.y, 0)

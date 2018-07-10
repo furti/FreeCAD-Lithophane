@@ -1,7 +1,7 @@
 '''Creates the wires and part objects'''
 
 import FreeCAD, FreeCADGui
-import Mesh, Part
+import Mesh, Part, MeshPart
 from PySide import QtGui
 
 import lithophane_utils, toolbars
@@ -107,9 +107,6 @@ class CreateGeometryCommand:
 
           return
 
-        # todo: we should really use the mesh for creating geometry. This is way too slow.
-        # https://github.com/FreeCAD/FreeCAD/blob/master/src/Mod/Mesh/BuildRegularGeoms.py
-        # https://www.freecadweb.org/wiki/Mesh_Scripting
         timers = []
         
         timers.append(Timer('Creating ImagePlane'))
@@ -133,12 +130,6 @@ class CreateGeometryCommand:
         imageMesh.harmonizeNormals()
         timers[-1].stop()
         lithophane_utils.processEvents()
-
-        # timers.append(Timer('Creating Solid From Mesh'))
-        # shape = Part.Shape()
-        # shape.makeShapeFromMesh(imageMesh.Topology, 0.05)
-        # imageSolid = Part.makeSolid(shape)
-        # timers[-1].stop()
 
         timers.append(Timer('Recomputing View'))
         # Part.show(imageSolid, 'Image')
