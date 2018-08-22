@@ -4,6 +4,7 @@ from PySide import QtGui
 
 import lithophane_utils, toolbars
 from utils.geometry_utils import linesToPointCloud
+from utils.resource_utils import iconPath
 
 def showPointCloud(pts, name):
     pointCloud = Points.Points()
@@ -16,9 +17,9 @@ class ShowPointCloudCommand:
     commandName = 'Show_PointCloud'
 
     def GetResources(self):
-        # Add pixmap some time 'Pixmap'  : 'My_Command_Icon
         return {'MenuText': "Show PointCloud",
-                'ToolTip' : "Show the point cloud generated for the selected image"}
+                'ToolTip' : "Show the point cloud generated for the selected image",
+                'Pixmap': iconPath('ShowPointcloud.svg')}
 
     def Activated(self):
         lithophaneImage = lithophane_utils.findSelectedImage()

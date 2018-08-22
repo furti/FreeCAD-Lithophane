@@ -3,9 +3,13 @@ import FreeCAD, FreeCADGui
 class LithophaneWorkbench (FreeCADGui.Workbench):
     "Create Lithophanes with FreeCAD"
 
-    # TODO: Add icon Icon = utils.addicon(iconname)
     MenuText = "Lithophane"
     ToolTip = "Create Lithophanes with FreeCAD"
+
+    def __init__(self):
+        from utils.resource_utils import iconPath
+        self.__class__.Icon = iconPath("Workbench.svg")
+        
 
     def Initialize(self):
         # Initialize the module

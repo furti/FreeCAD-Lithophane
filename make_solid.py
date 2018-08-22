@@ -7,6 +7,7 @@ from PySide import QtGui
 
 import lithophane_utils, toolbars
 from utils.timer import Timer, computeOverallTime
+from utils.resource_utils import iconPath
 
 class Neighbours:
     def __init__(self, face):
@@ -72,9 +73,9 @@ class MakeSolidCommand:
     commandName = 'Make_Solid'
 
     def GetResources(self):
-        # Add pixmap some time 'Pixmap'  : 'My_Command_Icon
         return {'MenuText': "Make Solid",
-                'ToolTip' : "Creates a Part Object out of the selected Mesh"}
+                'ToolTip' : "Creates a Part Object out of the selected Mesh",
+                'Pixmap': iconPath('MakeSolid.svg')}
 
     def Activated(self):
         mesh = lithophane_utils.findSelectedMesh()

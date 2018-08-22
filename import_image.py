@@ -2,15 +2,16 @@ import FreeCAD, FreeCADGui
 from PySide import QtGui
 import toolbars
 import lithophane_image
+from utils.resource_utils import iconPath
 
 class ImportImageCommand:
     toolbarName = 'Image_Tools'
     commandName = 'Import_Image'
 
     def GetResources(self):
-        # Add pixmap some time 'Pixmap'  : 'My_Command_Icon
         return {'MenuText': "Import Image",
-                'ToolTip' : "Imports an image to be converted to a Lithophane"}
+                'ToolTip' : "Imports an image to be converted to a Lithophane",
+                'Pixmap': iconPath('ImportImage.svg')}
 
     def Activated(self):
         fileName = QtGui.QFileDialog.getOpenFileName(QtGui.qApp.activeWindow(), "Open Image", '', "Image Files (*.png *.jpg *.bmp)")[0]

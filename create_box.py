@@ -6,6 +6,7 @@ from PySide import QtGui
 
 import lithophane_utils, toolbars
 from utils.timer import Timer, computeOverallTime
+from utils.resource_utils import iconPath
 
 def createBottomRectangle(lines):
     facets = []
@@ -120,9 +121,9 @@ class CreateGeometryCommand:
     commandName = 'Create_Box'
 
     def GetResources(self):
-        # Add pixmap some time 'Pixmap'  : 'My_Command_Icon
         return {'MenuText': "Create Box",
-                'ToolTip' : "Creates the geometry of the selected Lithophane Image in the shape of a box"}
+                'ToolTip' : "Creates the geometry of the selected Lithophane Image in the shape of a box",
+                'Pixmap': iconPath('CreateBox.svg')}
 
     def Activated(self):
         lithophaneImage = lithophane_utils.findSelectedImage()
