@@ -9,7 +9,7 @@ Basically a Lithophane is a image that was made in a way, that it can only be se
 
 This section gives you a step by step instruction on how to convert this image
 
-![Windmill](./Resources/Documentation/windmill.jpg)
+![Windmill](./Resources/Documentation/Windmill.JPG)
 
 to this awesome Lithophane
 
