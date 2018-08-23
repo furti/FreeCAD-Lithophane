@@ -10,7 +10,12 @@ class ToolbarManager:
 
 toolbarManager = ToolbarManager()
 
+# geometry tools
 import import_image
 import create_box
-import show_pointcloud
+
+# solid tools
 import make_solid
+
+# debugging tools
+import show_pointcloud

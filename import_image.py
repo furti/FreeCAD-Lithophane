@@ -1,6 +1,6 @@
 import FreeCAD, FreeCADGui
 from PySide import QtGui
-import toolbars
+
 import lithophane_image
 from utils.resource_utils import iconPath
 
@@ -36,4 +36,5 @@ if __name__ == "__main__":
     else:
         QtGui.QMessageBox.information(  QtGui.qApp.activeWindow(), "No open Document", "There is no open document")
 else:
-   toolbars.toolbarManager.registerCommand(ImportImageCommand()) 
+    import toolbars
+    toolbars.toolbarManager.registerCommand(ImportImageCommand()) 
