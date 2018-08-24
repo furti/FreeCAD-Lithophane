@@ -3,7 +3,7 @@
 Convert a image to a Lithophane for 3D Printing
 
 ## What is a Lithophane
-Basically a Lithophane is a image that was made in a way, that it can only be seen propertly when lighted from behing. You can check out [Wikipedia](https://en.wikipedia.org/wiki/Lithophane) for more details.
+Basically a Lithophane is a image that was made in a way, that it can only be seen propertly when illuminated from behind. You can check out [Wikipedia](https://en.wikipedia.org/wiki/Lithophane) for more details.
 
 ## Getting started
 
@@ -22,27 +22,27 @@ to this awesome Lithophane
 2. Install the Lithophane Workbench. The workbench is not in the addon manager right now. So you have to download the ZIP file from this repository and place it in your Mod folder. See [How to install additional workbenches](https://www.freecadweb.org/wiki/How_to_install_additional_workbenches) for further details.
 
 3. Switch to the Lithophane workbench in FreeCAD
- - ![Workbench Selection](./Resources/Documentation/workbench_selection.png)
+    - ![Workbench Selection](./Resources/Documentation/workbench_selection.png)
 
 4. Click the "Import Image" button 
- - ![Import Image](./Resources/Icons/ImportImage.svg)
- - A file selector will be shown. Select the image and click "Open"
- - Depending on the image and your machine, it might take a while for the import to finish. On my 8 years old Intel i7-2670QM it takes about 8 seconds to import the windmill image (814x1000 pixels)
- - **FreeCAD might be unresponsive during the import**
+    - ![Import Image](./Resources/Icons/ImportImage.svg)
+    - A file selector will be shown. Select the image and click "Open"
+    - Depending on the image and your machine, it might take a while for the import to finish. On my 8 years old Intel i7-2670QM it takes about 8 seconds to import the windmill image (814x1000 pixels)
+    - **FreeCAD might be unresponsive during the import**
 
 5. Switch to the TreeView and select the imported image
- - ![Select Image](./Resources/Documentation/tree_view_image_selected.png)
+    - ![Select Image](./Resources/Documentation/tree_view_image_selected.png)
 
 6. Click the "Create Box" button
- - ![Import Image](./Resources/Icons/CreateBox.svg)
- - Depending on the image and your machine it might take a while to compute the geometry. On my machine the testimage needed about 2 Seconds to compute.
- - **FreeCAD might be unresponsive during the import**
+    - ![Import Image](./Resources/Icons/CreateBox.svg)
+    - Depending on the image and your machine it might take a while to compute the geometry. On my machine the testimage needed about 2 Seconds to compute.
+    - **FreeCAD might be unresponsive during the import**
 
 7. Now you should see the image in the TreeView and the Viewport. You can pan and zoom to look on the image from different sides.
- - See [Mouse Model](https://www.freecadweb.org/wiki/Mouse_Model) for more informations on how to navigate in FreeCADs 3D View
+    - See [Mouse Model](https://www.freecadweb.org/wiki/Mouse_Model) for more informations on how to navigate in FreeCADs 3D View
 
 8. Select the generated mesh in the TreeView and click on `File -> Export`. Choose `STL Mesh` (Or anything your slicer software could handle) as file format and save the file somwhere on your machine.
- - ![Select Image](./Resources/Documentation/tree_view_mesh.png)
+    - ![Select Image](./Resources/Documentation/tree_view_mesh.png)
 
 9. Fire Up your slicer (e.g. Cura) and load the exported file. Adapt the settings according to your 3D Printer and save the gcode. Load the gcode in your printer and let it print. This might take some hours to finish.
 
