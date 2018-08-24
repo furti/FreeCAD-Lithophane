@@ -70,7 +70,13 @@ TODO
 ### Create Box
 ![Import Image](./Resources/Icons/CreateBox.svg)
 
-TODO
+Creates the Lithophane geometry in the shape of a box with the image on top of it.
+
+The name of the resulting mesh is hardcoded to "Image" right now. See https://github.com/furti/FreeCAD-Lithophane/issues/12
+
+**TODO: Add image that shows a final lithophane geometry in the 3D View**
+
+More Features might follow: https://github.com/furti/FreeCAD-Lithophane/issues/15
 
 ### Make Solid
 ![Import Image](./Resources/Icons/MakeSolid.svg)
