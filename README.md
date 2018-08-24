@@ -70,7 +70,7 @@ TODO
 ### Create Box
 ![Import Image](./Resources/Icons/CreateBox.svg)
 
-Creates the Lithophane geometry in the shape of a box with the image on top of it.
+Creates the Lithophane geometry in the shape of a box with the image on top of it. You have to select the LithophaneImage in the TreeView before executing the command.
 
 The name of the resulting mesh is hardcoded to "Image" right now. See https://github.com/furti/FreeCAD-Lithophane/issues/12
 
@@ -86,7 +86,9 @@ TODO
 ### Measure Size
 ![Import Image](./Resources/Icons/Measure.svg)
 
-TODO
+Displays a Dialog with Length (in X direction), Width (in Y direction) and Height (in Z direction) of the selected Mesh. You have to select a Mesh in the TreeView for this command to work. It should work not only with Meshes created by the Lithophane Workbench but with all kind of Meshes in the document.
+
+The command respects your unit and decimal preferences.
 
 ### Show Pointcloud
 ![Import Image](./Resources/Icons/ShowPointcloud.svg)
