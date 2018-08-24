@@ -90,10 +90,14 @@ Displays a Dialog with Length (in X direction), Width (in Y direction) and Heigh
 
 The command respects your unit and decimal preferences.
 
+**TODO: Add image of the dialog.**
+
 ### Show Pointcloud
 ![Import Image](./Resources/Icons/ShowPointcloud.svg)
 
-TODO
+Displays all the Points the LithophaneImage contains in the 3D View. You have to select a LithophaneImage for this command to work.
+
+This command might be useful for debugging purposes to check if the pixel data was interpreted as you imagine.
 
 ## Limitations
  - Only tested in FreeCAD 0.18 on Windows 10 right now
