@@ -89,7 +89,7 @@ TODO
 TODO
 
 ### Show Pointcloud
-![Import Image](./Resources/Icons/ImportImage.svg)
+![Import Image](./Resources/Icons/ShowPointcloud.svg)
 
 TODO
 
