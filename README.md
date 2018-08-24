@@ -81,7 +81,11 @@ More Features might follow: https://github.com/furti/FreeCAD-Lithophane/issues/1
 ### Make Solid
 ![Import Image](./Resources/Icons/MakeSolid.svg)
 
-TODO
+Converts the Mesh selected to a solid. Should only be used with meshes created by the Lithophane Workbench because this command makes some assumptions on the structure of the mesh to speed up mesh creation. You have to select a single Mesh in the TreeView for this command to work.
+
+**This command can take a long time and freeze your FreeCAD instance**. You can check the ReportView for the progress of the command. It shows a message after each step.
+
+This command might be handy to convert your mesh and use the power of FreeCAD to modify the resulting Lithophane the way you want.
 
 ### Measure Size
 ![Import Image](./Resources/Icons/Measure.svg)
