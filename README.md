@@ -7,13 +7,13 @@ Basically a Lithophane is a image that was made in a way, that it can only be se
 
 ## Getting started
 
-This section gives you a step by step instruction on how to convert this image
+This section gives you a step by step instruction on how to convert this image (Feel free to use it for printing if you want)
 
 ![Windmill](./Resources/Documentation/Windmill.JPG)
 
 to this awesome Lithophane
 
-**TODO: add image of final lithophane**
+![Windmill printed](./Resources/Documentation/windmill_printed.jpg)
 
 1. If not installed already go to [https://www.freecadweb.org/](https://www.freecadweb.org/) and grab yourself a fresh copy of FreeCAD and install it.
     - FreeCAD is a AWESOME free 3D CAD parametric modeling application.
@@ -64,8 +64,38 @@ The name of the imported image object is hardcoded to `LithophaneImage` right no
 **The pixel data whil be computed every time you recompute the image object!** This can happen when you change some settings of the image or force a recompute of the whole document.
 For performance reasons the calculated point cloud is stored inside the FreeCAD file. So your files can get pretty big real fast when you import big images.
 
-#### Image settings
-TODO
+#### Image properties
+
+The imported image has some properties that affect the final result. All this properties have some reasonable defaults. But feel free to change them if needed.
+
+You find the properties in the `Data` tab of the properties editor, when the LithophaneImage is selected in the tree view.
+![Select Image](./Resources/Documentation/image_settings.png)
+
+**Base Height / Maximum Height**
+
+These two properties define the height of the resulting geometry based on the lightning information of the image. Fully white parts of the image will result in the base height, fully black parts will map to the maximum height and everything else will be mapped to height values in between. Depending on the filament used to print your image you might want to adjust the values slightly.
+
+**Layer Height**
+
+3D Printers have a finite resolution on the Z Axis. The best my printer can print are layers of 0.1 mm in height. Based on the color of a pixel we can end up with a point at 0.05324 mm in Z direction. The 3D Printer is not able to print this. So we shift the point up or down to the nearest multiple of the given layer height.
+
+This value should be set to the layer height you select in your slicer software.
+
+**Nozzle Size**
+
+The nozzle of the 3D Printer defines how wide a line the printer prints will end up. Based on the image size we might end up with a huge amount of points, that might be impossible to handle for FreeCAD. Based on the dpi settings we might end up with points every 0.0something mm in X and Y direction. So we calculate the average of all the points in a `Nozzle Size`x`Nozzle Size` area to reduce the number of points drastically.
+
+This value should match the nozzle size of your 3D Printer.
+
+**Path**
+
+The Path to the image file. You can change it to another image here if you want or simply import another image with the `Import Image` command.
+
+**ppi**
+
+The number of image pixels that will end up in one inch of the resulting geometry. Higher values normally result in more details in the final image. This property basically affects the size of the final geometry.
+
+There will be a command in the future that helps you with calculating the right ppi value based on the final size you want for your image. https://github.com/furti/FreeCAD-Lithophane/issues/7
 
 ### Create Box
 ![Import Image](./Resources/Icons/CreateBox.svg)
@@ -74,7 +104,7 @@ Creates the Lithophane geometry in the shape of a box with the image on top of i
 
 The name of the resulting mesh is hardcoded to "Image" right now. See https://github.com/furti/FreeCAD-Lithophane/issues/12
 
-**TODO: Add image that shows a final lithophane geometry in the 3D View**
+![Final Geometry](./Resources/Documentation/geometry_3dview.png)
 
 More Features might follow: https://github.com/furti/FreeCAD-Lithophane/issues/15
 
@@ -94,7 +124,7 @@ Displays a Dialog with Length (in X direction), Width (in Y direction) and Heigh
 
 The command respects your unit and decimal preferences.
 
-**TODO: Add image of the dialog.**
+![Measure Dialog](./Resources/Documentation/measure_dialog.png)
 
 ### Show Pointcloud
 ![Import Image](./Resources/Icons/ShowPointcloud.svg)
