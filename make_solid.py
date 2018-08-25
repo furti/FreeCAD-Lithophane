@@ -88,27 +88,23 @@ class MakeSolidCommand:
         timers = []
         
 
-        timers.append(Timer('Grouping Faces'))
+        timers.append(Timer('Grouping Faces (1/5)'))
         faceGroups = groupFaces(mesh)
         timers[-1].stop()
-        lithophane_utils.processEvents()
 
-        timers.append(Timer('Calculating Wires from Groups'))
+        timers.append(Timer('Calculating Wires from Groups (2/5)'))
         wires = wiresFromFaceGroups(mesh, faceGroups)
         timers[-1].stop()
-        lithophane_utils.processEvents()
 
-        timers.append(Timer('Calculating Faces from Wires'))
+        timers.append(Timer('Calculating Faces from Wires (3/5)'))
         faces = [Part.Face(wire) for wire in wires]
         timers[-1].stop()
-        lithophane_utils.processEvents()
 
-        timers.append(Timer('Creating Shell from Faces'))
+        timers.append(Timer('Creating Shell from Faces (4/5)'))
         shell = Part.Compound(faces)
         timers[-1].stop()
-        lithophane_utils.processEvents()
 
-        timers.append(Timer('Recomputing View'))
+        timers.append(Timer('Recomputing View (5/5)'))
         Part.show(shell, 'Image Solid')
         lithophane_utils.recomputeView()
         timers[-1].stop()

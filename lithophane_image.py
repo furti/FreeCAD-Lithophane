@@ -184,7 +184,7 @@ class LithophaneImage:
         timers = []
         
         if imageChanged(self, fp.Path):
-            timers.append(Timer('ReloadingImage'))
+            timers.append(Timer('ReloadingImage (1/4)'))
             self.image = readImage(fp.Path)
             self.lastPath = fp.Path
 
@@ -192,22 +192,18 @@ class LithophaneImage:
             self.imageHeight = imageSize.height()
             self.imageWidth = imageSize.width()
             timers[-1].stop()
-            processEvents()
 
-        timers.append(Timer('Computing Point Cloud'))
+        timers.append(Timer('Computing Point Cloud (2/4)'))
         pointData = computeLines(self.image, fp.ppi, fp.BaseHeight, fp.MaximumHeight)
         timers[-1].stop()
-        processEvents()
 
-        timers.append(Timer('Computing Nozzle Size'))
+        timers.append(Timer('Computing Nozzle Size (3/4)'))
         lines = averageByNozzleSize(pointData[0], fp.ppi, fp.NozzleSize)
         timers[-1].stop()
-        processEvents()
 
-        timers.append(Timer('Computing Layer Height'))
+        timers.append(Timer('Computing Layer Height (4/4)'))
         lines = nearestLayerHeight(lines, fp.LayerHeight.Value)
         timers[-1].stop()
-        processEvents()
 
         FreeCAD.Console.PrintMessage('Recalculating image took %.3f s' % (computeOverallTime(timers)))
 

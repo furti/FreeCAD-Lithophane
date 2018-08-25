@@ -135,46 +135,38 @@ class CreateGeometryCommand:
 
         timers = []
         
-        timers.append(Timer('Creating ImagePlane'))
+        timers.append(Timer('Creating ImagePlane (1/7)'))
         imagePlane = makeImagePlane(lithophaneImage.lines)
         timers[-1].stop()
-        lithophane_utils.processEvents()
 
-        timers.append(Timer('Creating ImageBase'))
+        timers.append(Timer('Creating ImageBase (2/7)'))
         block = makeBlockBase(lithophaneImage.lines)
         timers[-1].stop()
-        lithophane_utils.processEvents()
 
-        timers.append(Timer('Create Bottom Plane'))
+        timers.append(Timer('Create Bottom Plane (3/7)'))
         bottomPlane = createBottomRectangle(lithophaneImage.lines)
         timers[-1].stop()
-        lithophane_utils.processEvents()
         
-        timers.append(Timer('Merge Meshes'))
+        timers.append(Timer('Merge Meshes (4/7)'))
         imageMesh = Mesh.Mesh()
         imageMesh.addMesh(imagePlane)
         imageMesh.addMesh(block)
         imageMesh.addMesh(bottomPlane)
         timers[-1].stop()
-        lithophane_utils.processEvents()
 
-        timers.append(Timer('Removing Duplicate Points'))
+        timers.append(Timer('Removing Duplicate Points (5/7)'))
         imageMesh.removeDuplicatedPoints()
         lithophane_utils.recomputeView()
         timers[-1].stop()
-        lithophane_utils.processEvents()
 
-        timers.append(Timer('Recalculating Normals'))
+        timers.append(Timer('Recalculating Normals (6/7)'))
         imageMesh.harmonizeNormals()
         timers[-1].stop()
-        lithophane_utils.processEvents()
 
-        timers.append(Timer('Recomputing View'))
-        # Part.show(imageSolid, 'Image')
+        timers.append(Timer('Recomputing View (7/7)'))
         Mesh.show(imageMesh, 'Image')
         lithophane_utils.recomputeView()
         timers[-1].stop()
-        lithophane_utils.processEvents()
 
 
         FreeCAD.Console.PrintMessage('Creating Boxy image took %.3f s' % (computeOverallTime(timers)))
