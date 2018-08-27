@@ -6,8 +6,10 @@ Convert a image to a Lithophane for 3D Printing
 Basically a Lithophane is a image that was made in a way, that it can only be seen propertly when illuminated from behind. You can check out [Wikipedia](https://en.wikipedia.org/wiki/Lithophane) for more details.
 
 ## Getting started
-
-This section gives you a step by step instruction on how to convert this image (Feel free to use it for printing if you want)
+<details>
+    <summary>
+    This section gives you a step by step instruction on how to convert this image (Feel free to use it for printing if you want)
+    </summary>
 
 ![Windmill](./Resources/Documentation/Windmill.JPG)
 
@@ -47,10 +49,14 @@ to this awesome Lithophane
 9. Fire Up your slicer (e.g. Cura) and load the exported file. Adapt the settings according to your 3D Printer and save the gcode. Load the gcode in your printer and let it print. This might take some hours to finish.
 
 10. Have fun with your nice Lithophane image :)
+</details>
 
 ## Command Details
 
+<details>
+<summary>
 This section describes each command in the workbench.
+</summary>
 
 ### Import Image
 ![Import Image](./Resources/Icons/ImportImage.svg)
@@ -132,6 +138,8 @@ The command respects your unit and decimal preferences.
 Displays all the Points the LithophaneImage contains in the 3D View. You have to select a LithophaneImage for this command to work.
 
 This command might be useful for debugging purposes to check if the pixel data was interpreted as you imagine.
+
+</details>
 
 ## Compatibility
 The Workbench should be compatible with the following FreeCAD Versions (at least on Windows):
