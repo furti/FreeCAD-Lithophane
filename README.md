@@ -85,13 +85,13 @@ These two properties define the height of the resulting geometry based on the li
 
 3D Printers have a finite resolution on the Z Axis. The best my printer can print are layers of 0.1 mm in height. Based on the color of a pixel we can end up with a point at 0.05324 mm in Z direction. The 3D Printer is not able to print this. So we shift the point up or down to the nearest multiple of the given layer height.
 
-This value should be set to the layer height you select in your slicer software.
+This value should be set to the layer height you select in your slicer software. It can be set to 0 to get the raw height values based on the color information.
 
 **Nozzle Size**
 
 The nozzle of the 3D Printer defines how wide a line the printer prints will end up. Based on the image size we might end up with a huge amount of points, that might be impossible to handle for FreeCAD. Based on the dpi settings we might end up with points every 0.0something mm in X and Y direction. So we calculate the average of all the points in a `Nozzle Size`x`Nozzle Size` area to reduce the number of points drastically.
 
-This value should match the nozzle size of your 3D Printer.
+This value should match the nozzle size of your 3D Printer. It can be set to 0 to get the raw pixel data without averaging neightbour pixels. As said before. This can freeze your FreeCAD installation for a long time or crash it.
 
 **Path**
 
