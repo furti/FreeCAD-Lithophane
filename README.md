@@ -141,6 +141,10 @@ This command might be useful for debugging purposes to check if the pixel data w
 
 </details>
 
+## Image Viewer
+
+The workbench comes with a basic image viewer embedded. Simply double click on a LithophaneImage to display the image in a modal dialog.
+
 ## Compatibility
 The Workbench should be compatible with the following FreeCAD Versions (at least on Windows):
  - 0.17
