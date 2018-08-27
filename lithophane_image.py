@@ -4,6 +4,7 @@ from __future__ import division
 
 import math
 import FreeCAD, FreeCADGui
+import threading, math
 from PySide import QtGui, QtCore
 from pivy import coin
 
@@ -11,6 +12,7 @@ from image_viewer import ImageViewer
 from utils.geometry_utils import pointCloudToLines
 from lithophane_utils import toChunks, tupleToVector, vectorToTuple, processEvents
 from utils.timer import Timer, computeOverallTime
+from utils.threadutils import computeAsync
 
 class AverageVector:
     def __init__(self):
@@ -27,6 +29,38 @@ class AverageVector:
         averageHeight = sum(self.heights) / len(self.heights)
 
         return FreeCAD.Vector(self.baseVector.x, self.baseVector.y, averageHeight)
+
+class LineThread(threading.Thread):
+    def __init__(self, params):
+        super(LineThread, self).__init__()
+        self.lines = params[0]
+        self.imageHeight = params[1]
+        self.imageWidth = params[2]
+        self.pixelSize = params[3]
+        self.baseHeight = params[4]
+        self.maximumHeight = params[5]
+
+        self.maxHeight = 0
+    
+    def run(self):
+        timer = Timer('calc')
+        pts = []
+
+        for lineData in self.lines:
+            for x in range(self.imageWidth):
+                pixelHeight = calculateHeightOfPixel(lineData[0][x], self.baseHeight, self.maximumHeight)
+
+                if pixelHeight > self.maxHeight:
+                    self.maxHeight = pixelHeight
+
+                pts.append(FreeCAD.Vector(x * self.pixelSize, (self.imageHeight - (lineData[1] + 1)) * self.pixelSize, pixelHeight))
+
+        self.lines = pointCloudToLines(pts)
+
+        timer.stop()
+    
+    def getResult(self):
+        return (self.lines, self.maxHeight)
 
 def mmPerPixel(ppi):
     pixelsPerMm = ppi / 25.4
@@ -66,6 +100,23 @@ def imageFromBase64(base64):
     
     return QtGui.QImage.fromData(ba, 'PNG')
 
+
+# def calculateHeightOfPixel(pixel, baseHeight, maximumHeight):
+#     '''Calculate the height of the pixel based on its lightness value.
+#     Lighter colors mean lower height because the light must come through.
+#     Maximum lightness 255 means the base height
+#     Minium lightness 0 means the full height of base height + additional height
+#     '''
+#     color = QtGui.QColor(pixel)
+#     # lightness = color.lightness()
+
+#     lightness = 100
+
+#     reversedLightness = (255 - lightness) # Reverse the value. Lighter means lower height
+#     percentage = (100 / 255) * reversedLightness
+
+#     return baseHeight.Value + ((maximumHeight.Value - baseHeight.Value) * percentage) / 100
+
 def calculatePixelHeight(image, x, y, baseHeight, maximumHeight):
     '''Calculate the height of the pixel based on its lightness value.
     Lighter colors mean lower height because the light must come through.
@@ -80,31 +131,75 @@ def calculatePixelHeight(image, x, y, baseHeight, maximumHeight):
 
     return baseHeight.Value + ((maximumHeight.Value - baseHeight.Value) * percentage) / 100
 
+def splitImageIntoLines(params, numberOfThreads):
+    image = params[0]
+    imageHeight = params[1]
+    imageWidth = params[2]
+    pixelSize = params[3]
+    baseHeight = params[4]
+    maximumHeight = params[5]
+
+    chunkSize = math.ceil(imageHeight / numberOfThreads)
+    chunks = []
+    lines = []
+
+    # QImage 0,0 is in the top left corner. Our point clouds 0,0 is in the bottom left corner
+    # So we itereate over the height in reverse order
+    for y in range(imageHeight - 1, -1, -1):
+        lines.append((image.scanLine(y), y))
+
+    for lineChunk in toChunks(lines, chunkSize):
+        chunks.append((lineChunk, imageHeight, imageWidth, pixelSize, baseHeight, maximumHeight))
+
+    return chunks
+
+def collectLineResult(resultList):
+    lines = []
+    maxHeight = 0
+
+    for result in resultList:
+        lines.extend(result[0])
+
+        if result[1] > maxHeight:
+            maxHeight = result[1]
+
+    return (lines, maxHeight)
+
 def computeLines(image, ppi, baseHeight, maximumHeight):
         pixelSize = mmPerPixel(ppi)
         imageSize = image.size()
         imageHeight = imageSize.height()
         imageWidth = imageSize.width()
 
-        pts = []
+        params = (image, imageHeight, imageWidth, pixelSize, baseHeight, maximumHeight)
 
-        maxHeight = 0
+        return computeAsync(params, splitImageIntoLines, LineThread, collectLineResult)
 
-        # QImage 0,0 is in the top left corner. Our point clouds 0,0 is in the bottom left corner
-        # So we itereate over the height in reverse order and use the imagewidth - y as coordinate.
-        # So we get 0 for the bottom row of the image
-        for y in range(imageHeight - 1, -1, -1):
-            for x in range(imageWidth):
-                pixelHeight = calculatePixelHeight(image, x, y, baseHeight, maximumHeight)
+# def computeLines(image, ppi, baseHeight, maximumHeight):
+#         pixelSize = mmPerPixel(ppi)
+#         imageSize = image.size()
+#         imageHeight = imageSize.height()
+#         imageWidth = imageSize.width()
 
-                if pixelHeight > maxHeight:
-                    maxHeight = pixelHeight
+#         pts = []
 
-                pts.append(FreeCAD.Vector(x * pixelSize, (imageHeight - (y + 1)) * pixelSize, pixelHeight))
+#         maxHeight = 0
 
-        lines = pointCloudToLines(pts)
+#         # QImage 0,0 is in the top left corner. Our point clouds 0,0 is in the bottom left corner
+#         # So we itereate over the height in reverse order and use the imagewidth - y as coordinate.
+#         # So we get 0 for the bottom row of the image
+#         for y in range(imageHeight - 1, -1, -1):
+#             for x in range(imageWidth):
+#                 pixelHeight = calculatePixelHeight(image, x, y, baseHeight, maximumHeight)
 
-        return (lines, maxHeight)
+#                 if pixelHeight > maxHeight:
+#                     maxHeight = pixelHeight
+
+#                 pts.append(FreeCAD.Vector(x * pixelSize, (imageHeight - (y + 1)) * pixelSize, pixelHeight))
+
+#         lines = pointCloudToLines(pts)
+
+#         return (lines, maxHeight)
 
 def averageByNozzleSize(lines, ppi, nozzleSize):
     if nozzleSize == 0:
