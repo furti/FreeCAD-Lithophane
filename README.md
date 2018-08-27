@@ -133,9 +133,14 @@ Displays all the Points the LithophaneImage contains in the 3D View. You have to
 
 This command might be useful for debugging purposes to check if the pixel data was interpreted as you imagine.
 
+## Compatibility
+The Workbench should be compatible with the following FreeCAD Versions (at least on Windows):
+ - 0.17
+ - 0.18
+ - 0.18 (Py3/QT5)
+
 ## Limitations
- - Only tested in FreeCAD 0.18 on Windows 10 right now
+ - Only tested on Windows 10 right now
  - Not tested with a lot of different images and image formats
  - Does not handle transparency correctly https://github.com/furti/FreeCAD-Lithophane/issues/14
- - Not test with Python 3 and QT5 Builds right now
  - Make Solid has some performance issues for bigger images and the created part is not a actual solid :(
