@@ -2,11 +2,11 @@
 
 import FreeCAD, FreeCADGui
 import Mesh, Part, MeshPart
-from PySide import QtGui
 
 import lithophane_utils
 from utils.timer import Timer, computeOverallTime
 from utils.resource_utils import iconPath
+import utils.qtutils as qtutils
 
 def createBottomRectangle(lines):
     facets = []
@@ -129,7 +129,7 @@ class CreateGeometryCommand:
         lithophaneImage = lithophane_utils.findSelectedImage()
 
         if lithophaneImage is None:
-          QtGui.QMessageBox.information(QtGui.qApp.activeWindow(), "No LithophaneImage selected", "Select exactly one LithophaneImage to continue")
+          qtutils.showInfo("No LithophaneImage selected", "Select exactly one LithophaneImage to continue")
 
           return
 
@@ -187,7 +187,7 @@ if __name__ == "__main__":
     if command.IsActive():
         command.Activated()
     else:
-        QtGui.QMessageBox.information(  QtGui.qApp.activeWindow(), "No open Document", "There is no open document")
+        qtutils.showInfo("No open Document", "There is no open document")
 else:
     import toolbars
     toolbars.toolbarManager.registerCommand(CreateGeometryCommand())

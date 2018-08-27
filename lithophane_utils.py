@@ -1,6 +1,5 @@
 import FreeCAD, FreeCADGui
-import time, itertools, Mesh
-from PySide import QtGui
+import itertools, Mesh
 
 def recomputeView():
     FreeCAD.ActiveDocument.recompute()
@@ -39,10 +38,6 @@ def findSelectedMesh():
 
 def vectorAtGround(vector):
   return FreeCAD.Vector(vector.x, vector.y, 0)
-
-def processEvents():
-  time.sleep(0.001)
-  QtGui.QApplication.processEvents()
 
 def toChunks(iterable, chunksize):
     """

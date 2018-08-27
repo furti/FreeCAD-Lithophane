@@ -4,13 +4,13 @@ from __future__ import division
 
 import math
 import FreeCAD, FreeCADGui
-from PySide import QtGui, QtCore
 from pivy import coin
 
 from image_viewer import ImageViewer
 from utils.geometry_utils import pointCloudToLines
-from lithophane_utils import toChunks, tupleToVector, vectorToTuple, processEvents
+from lithophane_utils import toChunks, tupleToVector, vectorToTuple
 from utils.timer import Timer, computeOverallTime
+import utils.qtutils as qtutils
 
 class AverageVector:
     def __init__(self):
@@ -33,19 +33,6 @@ def mmPerPixel(ppi):
 
     return 1 / pixelsPerMm
 
-def readImage(imagePath):
-    imageReader = QtGui.QImageReader(imagePath)
-
-    if imageReader.canRead():
-        image = imageReader.read() 
-
-        if image.isNull():
-            QtGui.QMessageBox.information(  QtGui.qApp.activeWindow(), "Image Read Error", "Can't read image: %s" % imageReader.errorString())
-
-        return image
-    else:
-        QtGui.QMessageBox.information(  QtGui.qApp.activeWindow(), "Image Read Error", "Can't read image: %s" % imageReader.errorString())
-
 def imageChanged(lithophaneImage, newPath):
     if not hasattr(lithophaneImage, 'image') or not hasattr(lithophaneImage, 'lastPath'):
         return True
@@ -53,18 +40,18 @@ def imageChanged(lithophaneImage, newPath):
     return newPath != lithophaneImage.lastPath
 
 def imgToBase64(image):
-    ba = QtCore.QByteArray()
+    ba = qtutils.QByteArray()
     
-    buffer = QtCore.QBuffer(ba)
-    buffer.open(QtCore.QIODevice.WriteOnly)
+    buffer = qtutils.QBuffer(ba)
+    buffer.open(qtutils.QIODevice.WriteOnly)
     image.save(buffer, 'PNG')
     
     return ba.toBase64().data()
 
 def imageFromBase64(base64):
-    ba = QtCore.QByteArray.fromBase64(QtCore.QByteArray(base64))
+    ba = qtutils.QByteArray.fromBase64(qtutils.QByteArray(base64))
     
-    return QtGui.QImage.fromData(ba, 'PNG')
+    return qtutils.QImage.fromData(ba, 'PNG')
 
 def calculatePixelHeight(image, x, y, baseHeight, maximumHeight):
     '''Calculate the height of the pixel based on its lightness value.
@@ -72,7 +59,7 @@ def calculatePixelHeight(image, x, y, baseHeight, maximumHeight):
     Maximum lightness 255 means the base height
     Minium lightness 0 means the full height of base height + additional height
     '''
-    color = QtGui.QColor(image.pixel(x, y))
+    color = qtutils.QColor(image.pixel(x, y))
     lightness = color.lightness()
 
     reversedLightness = (255 - lightness) # Reverse the value. Lighter means lower height
@@ -185,7 +172,7 @@ class LithophaneImage:
         
         if imageChanged(self, fp.Path):
             timers.append(Timer('ReloadingImage (1/4)'))
-            self.image = readImage(fp.Path)
+            self.image = qtutils.readImage(fp.Path)
             self.lastPath = fp.Path
 
             imageSize = self.image.size()
@@ -296,8 +283,7 @@ if __name__ == "__main__":
     import os
     imagePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), './testimages/medium.png')
 
-    imageReader = QtGui.QImageReader(imagePath)
-    image = imageReader.read()
+    image = qtutils.readImage(imagePath)
 
     if image.isNull():
          FreeCAD.Console.PrintMessage(imageReader.errorString())

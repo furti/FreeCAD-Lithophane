@@ -1,10 +1,10 @@
 import FreeCAD, FreeCADGui
 import Points
-from PySide import QtGui
 
 import lithophane_utils
 from utils.geometry_utils import linesToPointCloud
 from utils.resource_utils import iconPath
+import utils.qtutils as qtutils
 
 def showPointCloud(pts, name):
     pointCloud = Points.Points()
@@ -25,7 +25,7 @@ class ShowPointCloudCommand:
         lithophaneImage = lithophane_utils.findSelectedImage()
 
         if lithophaneImage is None:
-          QtGui.QMessageBox.information(QtGui.qApp.activeWindow(), "No LithophaneImage selected", "Select exactly one LithophaneImage to continue")
+          qtutils.showInfo("No LithophaneImage selected", "Select exactly one LithophaneImage to continue")
 
           return
         
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     if command.IsActive():
         command.Activated()
     else:
-        QtGui.QMessageBox.information(  QtGui.qApp.activeWindow(), "No open Document", "There is no open document")
+        qtutils.showInfo("No open Document", "There is no open document")
 else:
     import toolbars
     toolbars.toolbarManager.registerCommand(ShowPointCloudCommand())

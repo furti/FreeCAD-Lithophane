@@ -1,7 +1,7 @@
 import FreeCAD
 import time
 
-import lithophane_utils
+import utils.qtutils as qtutils
 
 class Timer:
     def __init__(self, message):
@@ -10,7 +10,7 @@ class Timer:
 
     def start(self):
         FreeCAD.Console.PrintMessage('Start: %s...\n' % (self.message))
-        lithophane_utils.processEvents()
+        qtutils.processEvents()
 
         self.startSeconds = time.time()
 
@@ -22,7 +22,7 @@ class Timer:
         self.seconds = endSeconds - self.startSeconds
 
         FreeCAD.Console.PrintMessage('Finished: %s (%.3f s)\n' % (self.message, self.seconds))
-        lithophane_utils.processEvents()
+        qtutils.processEvents()
 
 def computeOverallTime(timers):
     return sum(map(lambda timer: timer.seconds, timers))

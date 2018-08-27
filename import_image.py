@@ -1,8 +1,8 @@
 import FreeCAD, FreeCADGui
-from PySide import QtGui
 
 import lithophane_image
 from utils.resource_utils import iconPath
+import utils.qtutils as qtutils
 
 class ImportImageCommand:
     toolbarName = 'Image_Tools'
@@ -14,7 +14,7 @@ class ImportImageCommand:
                 'Pixmap': iconPath('ImportImage.svg')}
 
     def Activated(self):
-        fileName = QtGui.QFileDialog.getOpenFileName(QtGui.qApp.activeWindow(), "Open Image", '', "Image Files (*.png *.jpg *.bmp)")[0]
+        fileName = qtutils.userSelectedFile("Open Image", qtutils.IMAGE_FILES)
 
         if fileName is None or fileName == '':
             FreeCAD.Console.PrintMessage('No File Selected')
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     if command.IsActive():
         command.Activated()
     else:
-        QtGui.QMessageBox.information(  QtGui.qApp.activeWindow(), "No open Document", "There is no open document")
+        qtutils.showInfo("No open Document", "There is no open document")
 else:
     import toolbars
     toolbars.toolbarManager.registerCommand(ImportImageCommand()) 

@@ -1,8 +1,10 @@
 from PySide import QtGui, QtCore
 
+import utils.qtutils as qtutils
+
 class ImageViewer(QtGui.QDialog):
     def __init__(self, image):
-        super(ImageViewer, self).__init__(QtGui.qApp.activeWindow())
+        super(ImageViewer, self).__init__(qtutils.activeWindow())
 
         self.imageLabel = QtGui.QLabel()
         self.imageLabel.setBackgroundRole(QtGui.QPalette.Base)

@@ -3,11 +3,11 @@
 import math
 import FreeCAD, FreeCADGui
 import Mesh, Part, MeshPart
-from PySide import QtGui
 
 import lithophane_utils
 from utils.timer import Timer, computeOverallTime
 from utils.resource_utils import iconPath
+import utils.qtutils as qtutils
 
 class Neighbours:
     def __init__(self, face):
@@ -81,7 +81,7 @@ class MakeSolidCommand:
         mesh = lithophane_utils.findSelectedMesh()
 
         if mesh is None:
-          QtGui.QMessageBox.information(QtGui.qApp.activeWindow(), "No mesh selected", "Select exactly one mesh to continue")
+          qtutils.showInfo("No mesh selected", "Select exactly one mesh to continue")
 
           return
 
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     if command.IsActive():
         command.Activated()
     else:
-        QtGui.QMessageBox.information(  QtGui.qApp.activeWindow(), "No open Document", "There is no open document")
+        qtutils.showInfo("No open Document", "There is no open document")
 else:
     import toolbars
     toolbars.toolbarManager.registerCommand(MakeSolidCommand())

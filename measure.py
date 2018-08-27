@@ -1,9 +1,9 @@
 import FreeCAD, FreeCADGui
-from PySide import QtGui
 
 import lithophane_utils
 from utils.resource_utils import iconPath
 from utils.format_utils import formatLength
+import utils.qtutils as qtutils
 
 class MeasureCommand:
     toolbarName = 'Debugging_Tools'
@@ -18,7 +18,7 @@ class MeasureCommand:
         mesh = lithophane_utils.findSelectedMesh()
 
         if mesh is None:
-          QtGui.QMessageBox.information(QtGui.qApp.activeWindow(), "No Mesh selected", "Select exactly one Mesh to continue")
+          qtutils.showInfo("No Mesh selected", "Select exactly one Mesh to continue")
 
           return
         
@@ -30,7 +30,7 @@ class MeasureCommand:
 
         message = "Length (X): %s\n\nWidth (Y): %s\n\nHeight (Z): %s" %(length, width, height)
 
-        QtGui.QMessageBox.information(QtGui.qApp.activeWindow(), "Bounding Informations", message)
+        qtutils.showInfo("Bounding Informations", message)
     
     def IsActive(self):
         """There should be at least an active document."""
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     if command.IsActive():
         command.Activated()
     else:
-        QtGui.QMessageBox.information(  QtGui.qApp.activeWindow(), "No open Document", "There is no open document")
+        qtutils.showInfo("No open Document", "There is no open document")
 else:
     import toolbars
     toolbars.toolbarManager.registerCommand(MeasureCommand())
