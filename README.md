@@ -151,6 +151,11 @@ The Workbench should be compatible with the following FreeCAD Versions (at least
  - 0.18
  - 0.18 (Py3/QT5)
 
+## Dependencies
+The Workbench does not need any additional software to be installed to be fully functional.
+
+The only exception could be a image manipulation program. This could be handy to change some aspects of the image like contrast or size before creating a Lithophane from it.
+
 ## Limitations
  - Only tested on Windows 10 right now
  - Not tested with a lot of different images and image formats
