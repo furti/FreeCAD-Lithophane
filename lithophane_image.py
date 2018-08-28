@@ -2,7 +2,7 @@
 
 from __future__ import division
 
-import math
+import math, os
 import FreeCAD, FreeCADGui
 from pivy import coin
 
@@ -273,15 +273,17 @@ class ViewProviderLithophaneImage:
  
 
 def createImage(imagePath):
-    a=FreeCAD.ActiveDocument.addObject("App::FeaturePython","LithophaneImage")
+    fileName = os.path.split(imagePath)[1]
+    imageName = os.path.splitext(fileName)[0]
+
+    a=FreeCAD.ActiveDocument.addObject("App::FeaturePython", imageName)
     image = LithophaneImage(a, imagePath)
     ViewProviderLithophaneImage(a.ViewObject)
 
     return image
 
 if __name__ == "__main__":
-    import os
-    imagePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), './testimages/medium.png')
+    imagePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'testimages', 'medium.png')
 
     image = qtutils.readImage(imagePath)
 

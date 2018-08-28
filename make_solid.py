@@ -78,7 +78,7 @@ class MakeSolidCommand:
                 'Pixmap': iconPath('MakeSolid.svg')}
 
     def Activated(self):
-        mesh = lithophane_utils.findSelectedMesh()
+        mesh, meshLabel = lithophane_utils.findSelectedMesh()
 
         if mesh is None:
           qtutils.showInfo("No mesh selected", "Select exactly one mesh to continue")
@@ -105,7 +105,7 @@ class MakeSolidCommand:
         timers[-1].stop()
 
         timers.append(Timer('Recomputing View (5/5)'))
-        Part.show(shell, 'Image Solid')
+        Part.show(shell, meshLabel + '_Solid')
         lithophane_utils.recomputeView()
         timers[-1].stop()
 

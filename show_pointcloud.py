@@ -22,14 +22,14 @@ class ShowPointCloudCommand:
                 'Pixmap': iconPath('ShowPointcloud.svg')}
 
     def Activated(self):
-        lithophaneImage = lithophane_utils.findSelectedImage()
+        lithophaneImage, imageLabel = lithophane_utils.findSelectedImage()
 
         if lithophaneImage is None:
           qtutils.showInfo("No LithophaneImage selected", "Select exactly one LithophaneImage to continue")
 
           return
         
-        showPointCloud(lithophaneImage.lines, 'ImagePointCloud')
+        showPointCloud(lithophaneImage.lines, imageLabel + '_PointCloud')
 
         lithophane_utils.recomputeView()
     

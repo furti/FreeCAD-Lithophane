@@ -126,7 +126,7 @@ class CreateGeometryCommand:
                 'Pixmap': iconPath('CreateBox.svg')}
 
     def Activated(self):
-        lithophaneImage = lithophane_utils.findSelectedImage()
+        lithophaneImage, imageLabel = lithophane_utils.findSelectedImage()
 
         if lithophaneImage is None:
           qtutils.showInfo("No LithophaneImage selected", "Select exactly one LithophaneImage to continue")
@@ -164,7 +164,7 @@ class CreateGeometryCommand:
         timers[-1].stop()
 
         timers.append(Timer('Recomputing View (7/7)'))
-        Mesh.show(imageMesh, 'Image')
+        Mesh.show(imageMesh, imageLabel + '_Box')
         lithophane_utils.recomputeView()
         timers[-1].stop()
 

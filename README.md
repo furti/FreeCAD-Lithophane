@@ -65,7 +65,7 @@ The command imports a new Image into the document. Therefor a Dialog is shown th
 
 Depending on the image and your machine, it might take a while for the import to finish. On my 8 years old Intel i7-2670QM it takes about 8 seconds to import the windmill image (814x1000 pixels). **FreeCAD might be unresponsive during the import**.
 
-The name of the imported image object is hardcoded to `LithophaneImage` right now. So when importing more than one image it might be hard to distinguish the images from each other. See https://github.com/furti/FreeCAD-Lithophane/issues/12
+The name of the imported image object will be taken from the image file.
 
 **The pixel data whil be computed every time you recompute the image object!** This can happen when you change some settings of the image or force a recompute of the whole document.
 For performance reasons the calculated point cloud is stored inside the FreeCAD file. So your files can get pretty big real fast when you import big images.
@@ -108,7 +108,7 @@ There will be a command in the future that helps you with calculating the right 
 
 Creates the Lithophane geometry in the shape of a box with the image on top of it. You have to select the LithophaneImage in the TreeView before executing the command.
 
-The name of the resulting mesh is hardcoded to "Image" right now. See https://github.com/furti/FreeCAD-Lithophane/issues/12
+The name of the resulting mesh will be taken from the selected LithophaneImage. When the selected image is named `Windmill` the resulting mesh will be named `Windmill_Box`.
 
 ![Final Geometry](./Resources/Documentation/geometry_3dview.png)
 

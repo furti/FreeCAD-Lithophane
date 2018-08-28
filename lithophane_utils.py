@@ -21,7 +21,7 @@ def findSelectedImage():
   #if not isinstance(selectedObject.Proxy, LithophaneImage):
   #  return None
   
-  return selection[0].Proxy
+  return (selection[0].Proxy, selection[0].Label)
 
 def findSelectedMesh():
   selection = FreeCADGui.Selection.getSelection()
@@ -34,7 +34,7 @@ def findSelectedMesh():
   if not hasattr(selectedObject, 'Mesh'):
     return None
 
-  return selection[0].Mesh
+  return selection[0].Mesh, selection[0].Label
 
 def vectorAtGround(vector):
   return FreeCAD.Vector(vector.x, vector.y, 0)
