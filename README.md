@@ -156,6 +156,9 @@ The Workbench does not need any additional software to be installed to be fully 
 
 The only exception could be a image manipulation program. This could be handy to change some aspects of the image like contrast or size before creating a Lithophane from it.
 
+## Support
+Found a bug? Have a nice feature request? Post to this FreeCAD Forum thread https://forum.freecadweb.org/viewtopic.php?f=9&t=30496 or simply create an issue in this repository.
+
 ## Limitations
  - Only tested on Windows 10 right now
  - Not tested with a lot of different images and image formats
