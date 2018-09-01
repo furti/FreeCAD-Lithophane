@@ -58,12 +58,23 @@ def calculatePixelHeight(image, x, y, baseHeight, maximumHeight):
     Lighter colors mean lower height because the light must come through.
     Maximum lightness 255 means the base height
     Minium lightness 0 means the full height of base height + additional height
-    '''
-    color = qtutils.QColor(image.pixel(x, y))
-    lightness = color.lightness()
 
-    reversedLightness = (255 - lightness) # Reverse the value. Lighter means lower height
-    percentage = (100 / 255) * reversedLightness
+    When alpha channel has some transparency (alpha value < 255) we calculate the height
+    based on the alpha value. 254 means maximumHeight and 0 means baseHeight
+    '''
+    color = qtutils.QColor()
+    color.setRgba(image.pixel(x, y))
+
+    percentage = 0
+    alpha = color.alpha()
+
+    if(alpha < 255):
+        percentage = (100 / 254) * alpha
+    else:
+        lightness = color.lightness()
+
+        reversedLightness = (255 - lightness) # Reverse the value. Lighter means lower height
+        percentage = (100 / 255) * reversedLightness
 
     return baseHeight.Value + ((maximumHeight.Value - baseHeight.Value) * percentage) / 100
 

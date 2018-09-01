@@ -70,6 +70,10 @@ The name of the imported image object will be taken from the image file.
 **The pixel data whil be computed every time you recompute the image object!** This can happen when you change some settings of the image or force a recompute of the whole document.
 For performance reasons the calculated point cloud is stored inside the FreeCAD file. So your files can get pretty big real fast when you import big images.
 
+#### Transparency
+
+If a pixel has a alpha value of less than 255, the alpha value will be used to calculate the height of the pixel. A alpha value of 0 means the base height and 254 means the full height. Everything between will be calculated accordingly.
+
 #### Image properties
 
 The imported image has some properties that affect the final result. All this properties have some reasonable defaults. But feel free to change them if needed.
@@ -162,5 +166,4 @@ Found a bug? Have a nice feature request? Post to this FreeCAD Forum thread http
 ## Limitations
  - Only tested on Windows 10 right now
  - Not tested with a lot of different images and image formats
- - Does not handle transparency correctly https://github.com/furti/FreeCAD-Lithophane/issues/14
  - Make Solid has some performance issues for bigger images and the created part is not a actual solid :(

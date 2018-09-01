@@ -5,8 +5,6 @@ import freecad_it.logger as logger
 
 import lithophane_image
 
-v_0_0_09 = vector(0, 0, 0.9)
-
 def buildSmallPointsReduced():
     points = []
     distanceBetweenPoints = 0.42 # the default settings end up with this distance between points
@@ -34,7 +32,35 @@ def buildSmallPointsReduced():
 
     return points
 
+def buildTinyPoints():
+    points = []
+    distanceBetweenPoints = 1 # 25,4 ppi should be 1mm
+
+    # The tiny image with no optimizations ends up in 10x10 pixels
+    for row in range(0, 10):
+        line = []
+
+        for column in range(0, 10):
+
+            # Eight column is 50% grey. So at height 1.75 millimeters
+            if column == 7:
+                line.append(vector(distanceBetweenPoints * column, distanceBetweenPoints * row, 1.75))
+            # First 3 pixels of third colum are 25% grey. 1.1mm
+            elif row == 2 and column < 3:
+                line.append(vector(distanceBetweenPoints * column, distanceBetweenPoints * row, 1.1))
+            # First 5 pixels of ninth colum are black. so at full height
+            elif row == 8 and column < 5:
+                line.append(vector(distanceBetweenPoints * column, distanceBetweenPoints * row, 3))
+            else:
+                # everything that is white
+                line.append(vector(distanceBetweenPoints * column, distanceBetweenPoints * row, 0.5))
+
+        points.append(line)
+
+    return points
+
 small_points_reduced = buildSmallPointsReduced()
+tiny_points = buildTinyPoints()
 
 # Utils
 def imagePath(fileName):
@@ -68,5 +94,29 @@ def pointcloudIsCalculatedForDefaultProperties():
     assertThat(image, hasAttribute('lines'))
     assertThat(image.lines, matchesTowdimensionalListOfVectors(small_points_reduced))
 
+def pointCloudIsCalculatedWithoutNozzleSize():
+    imageObject = importImage('tini')
+    imageObject.NozzleSize = 0
+    imageObject.ppi = 25.4 # Should be approximately 1mm per pixel
+    image = imageObject.Proxy
+    
+    recompute()
+
+    assertThat(image, isNotNone())
+    assertThat(image, hasAttribute('lines'))
+    assertThat(image.lines, matchesTowdimensionalListOfVectors(tiny_points))
+
+def pointCloudIsCalculatedWithoutNozzleSizeForTransparency():
+    imageObject = importImage('tiny_transparency')
+    imageObject.NozzleSize = 0
+    imageObject.ppi = 25.4 # Should be approximately 1mm per pixel
+    image = imageObject.Proxy
+    
+    recompute()
+
+    assertThat(image, isNotNone())
+    assertThat(image, hasAttribute('lines'))
+    assertThat(image.lines, matchesTowdimensionalListOfVectors(tiny_points))
+
 def collectTests():
-    return [isLoadedWithRightName, pointcloudIsCalculatedForDefaultProperties]
+    return [isLoadedWithRightName, pointcloudIsCalculatedForDefaultProperties, pointCloudIsCalculatedWithoutNozzleSize, pointCloudIsCalculatedWithoutNozzleSizeForTransparency]

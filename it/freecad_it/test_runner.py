@@ -96,7 +96,7 @@ class TestRunner():
                 logger.logLine('    %s - %s' % (testCase.describe(), testCase.success))
 
                 if not testCase.success:
-                    logger.logLine(testCase.error)
+                    logger.logError(testCase.error)
 
     def run(self):
         self.outputTestsToRun()
