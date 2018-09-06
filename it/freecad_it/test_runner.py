@@ -2,7 +2,7 @@ import traceback, time
 import FreeCAD
 from PySide import QtGui
 
-import logger
+from .logger import logError, logLine
 
 def processEvents():
   time.sleep(0.001)
@@ -61,42 +61,42 @@ class TestRunner():
             self.testCasesByModule[moduleName].append(TestCase(testMethod))
     
     def outputTestsToRun(self):
-        logger.logLine('Got %s Tests to run' % (self.numberOfTests))
+        logLine('Got %s Tests to run' % (self.numberOfTests))
 
         for module, testCases in self.testCasesByModule.items():
-            logger.logLine(module)
+            logLine(module)
 
             for testCase in testCases:
-                logger.logLine('    %s' % (testCase.describe()))
+                logLine('    %s' % (testCase.describe()))
         
         processEvents()
 
     def runTests(self):
-        logger.logLine('')
-        logger.logLine('Starting tests...')
+        logLine('')
+        logLine('Starting tests...')
         
         for module, testCases in self.testCasesByModule.items():
-            logger.logLine(module)
+            logLine(module)
 
             for testCase in testCases:
-                logger.logLine('    %s' % (testCase.describe()))
+                logLine('    %s' % (testCase.describe()))
 
                 testCase.run()
 
                 processEvents()
     
     def printTestResults(self):
-        logger.logLine('')
-        logger.logLine('Test Results')
+        logLine('')
+        logLine('Test Results')
 
         for module, testCases in self.testCasesByModule.items():
-            logger.logLine(module)
+            logLine(module)
 
             for testCase in testCases:
-                logger.logLine('    %s - %s' % (testCase.describe(), testCase.success))
+                logLine('    %s - %s' % (testCase.describe(), testCase.success))
 
                 if not testCase.success:
-                    logger.logError(testCase.error)
+                    logError(testCase.error)
 
     def run(self):
         self.outputTestsToRun()
