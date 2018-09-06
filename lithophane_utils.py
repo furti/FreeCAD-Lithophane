@@ -11,15 +11,15 @@ def findSelectedImage():
   selection = FreeCADGui.Selection.getSelection()
   
   if len(selection) != 1:
-    return None
+    return (None, None)
   
   selectedObject = selection[0]
 
-  if selectedObject.Proxy is None:
-    return None
+  if not hasattr(selectedObject, 'Proxy') or selectedObject.Proxy is None:
+    return (None, None)
 
-  #if not isinstance(selectedObject.Proxy, LithophaneImage):
-  #  return None
+  if not hasattr(selectedObject.Proxy, 'isLithophaneImage') or not selectedObject.Proxy.isLithophaneImage:
+    return (None, None)
   
   return (selection[0].Proxy, selection[0].Label)
 

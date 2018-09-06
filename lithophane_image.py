@@ -174,7 +174,7 @@ class LithophaneImage:
         obj.Proxy = self
 
         self.lastPath = imagePath
-        self.pointCloudName = None
+        self.isLithophaneImage = True
 
     def execute(self, fp):
         '''Recompute the image when something changed'''
