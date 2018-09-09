@@ -21,7 +21,7 @@ to this awesome Lithophane
     - FreeCAD is a AWESOME free 3D CAD parametric modeling application.
     - Don't worry. You don't need to know much about 3D modelling to get a nice looking Lithophane out of this tool.
 
-2. Install the Lithophane Workbench. The workbench is not in the addon manager right now. So you have to download the ZIP file from this repository and place it in your Mod folder. See [How to install additional workbenches](https://www.freecadweb.org/wiki/How_to_install_additional_workbenches) for further details.
+2. Install the Lithophane Workbench. The workbench is available in the addon manager. The addon manager can be found in the ``Tools`` menu. Locate the "Lithophane" entry and click Install.
 
 3. Switch to the Lithophane workbench in FreeCAD
     - ![Workbench Selection](./Resources/Documentation/workbench_selection.png)
