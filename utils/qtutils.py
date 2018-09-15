@@ -27,6 +27,8 @@ QPixmap = QtWidgets.QPixmap
 # File patterns
 IMAGE_FILES = "Image Files (*.png *.jpg *.bmp)"
 
+def qgray(qColor):
+    return (qColor.red() * 11 + qColor.green() * 16 + qColor.blue() * 5)/32
 
 def activeWindow():
     return QtWidgets.QApplication.activeWindow()

@@ -1,5 +1,10 @@
+import sys
+IS_PY_3 = sys.version_info.major == 3
+
 import FreeCAD, FreeCADGui
 import itertools, Mesh
+from pivy import coin
+import utils.qtutils as qtutils
 
 def recomputeView():
     FreeCAD.ActiveDocument.recompute()
@@ -58,3 +63,34 @@ def vectorToTuple(vector):
 
 def tupleToVector(t):
   return FreeCAD.Vector(t[0], t[1], t[2])
+
+def convertImageToTexture(image):
+    size = coin.SbVec2s(image.width(), image.height())
+    buffersize = image.byteCount()
+
+    soImage = coin.SoSFImage()
+    width = size[0]
+    height = size[1]
+    imageBytes = b''
+
+    for y in range(height -1, -1, -1):
+        for x in range(width):
+            rgb = image.pixel(x,y)
+            color = qtutils.QColor()
+            color.setRgba(rgb)
+            alpha = color.alpha()
+            value = 0
+
+            if alpha < 255:
+                value = 254 - alpha
+            else:
+                value = color.lightness()
+            
+            if IS_PY_3:
+                imageBytes = imageBytes + chr(value).encode('latin-1')
+            else:
+                imageBytes = imageBytes + chr(value)
+
+    soImage.setValue(size, 1, imageBytes)
+    
+    return soImage

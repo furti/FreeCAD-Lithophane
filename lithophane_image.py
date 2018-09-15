@@ -11,7 +11,7 @@ from pivy import coin
 
 from image_viewer import ImageViewer
 from utils.geometry_utils import pointCloudToLines
-from lithophane_utils import toChunks, tupleToVector, vectorToTuple
+from lithophane_utils import toChunks, tupleToVector, vectorToTuple, convertImageToTexture
 from utils.timer import Timer, computeOverallTime
 import utils.qtutils as qtutils
 
@@ -184,6 +184,8 @@ class LithophaneImage:
         obj.addProperty("App::PropertyLength", "BaseHeight", "LithophaneImage", "The height of the white color").BaseHeight = 0.5
         obj.addProperty("App::PropertyLength", "MaximumHeight", "LithophaneImage", "The height of the black color").MaximumHeight = 3
         
+        obj.addProperty("App::PropertyFloat", "UpdateNotifier", "LithophaneImage", "Notifies the View Provider that something changed.").UpdateNotifier = -1
+        
         obj.Proxy = self
 
         self.lastPath = imagePath
@@ -220,6 +222,8 @@ class LithophaneImage:
 
         self.lines = lines
         self.maxHeight = pointData[1]
+
+        fp.UpdateNotifier += 1
 
     def __getstate__(self):
         '''Store the image as base64 inside the document'''
@@ -260,28 +264,62 @@ class ViewProviderLithophaneImage:
         vobj.Proxy = self
  
     def attach(self, vobj):
-        '''Nothing to setup right now'''
         self.ViewObject = vobj
         self.Object = vobj.Object
         self.LithophaneImage = self.Object.Proxy
 
-        self.standard = coin.SoGroup()
-        vobj.addDisplayMode(self.standard, "Standard");
+        self.Object.setEditorMode("UpdateNotifier", 2)
 
-        return
+        self.imageNode = coin.SoSeparator()
+
+        self.coords = coin.SoCoordinate3()
+        self.coords.point.set1Value(0, 0, 0, -1)
+        self.coords.point.set1Value(1, 1, 0, -1)
+        self.coords.point.set1Value(2, 1, 1, -1)
+        self.coords.point.set1Value(3, 0, 1, -1)
+
+        textureCoords = coin.SoTextureCoordinate2()
+        textureCoords.point.set1Value(0, 0, 0)
+        textureCoords.point.set1Value(1, 1, 0)
+        textureCoords.point.set1Value(2, 1, 1)
+        textureCoords.point.set1Value(3, 0, 1)
+
+        faceset = coin.SoFaceSet()
+        faceset.numVertices.set1Value(0, 4)
+
+        self.texture = coin.SoTexture2()
+
+        self.imageNode.addChild(self.coords)
+        self.imageNode.addChild(textureCoords)
+        self.imageNode.addChild(self.texture)
+        self.imageNode.addChild(faceset)
+
+        vobj.addDisplayMode(self.imageNode, "LithophaneImage");
 
     def getDisplayModes(self,obj):
         '''Return a list of display modes.'''
         
-        return ["Standard"]
+        return ["LithophaneImage"]
  
     def getDefaultDisplayMode(self):
         '''Return the name of the default display mode. It must be defined in getDisplayModes.'''
        
-        return "Standard"
+        return "LithophaneImage"
 
     def updateData(self, fp, prop):
-        '''Nothing to do when something changes'''
+        '''Nothing to do when some properties are changed'''
+        
+        if prop == 'UpdateNotifier' and self.Object.UpdateNotifier > -1:
+            lithophaneImage = self.LithophaneImage
+
+            self.texture.image = convertImageToTexture(lithophaneImage.image)
+
+            topRight = lithophaneImage.lines[-1][-1]
+            
+            self.coords.point.set1Value(1, topRight.x, 0, -1)
+            self.coords.point.set1Value(2, topRight.x, topRight.y, -1)
+            self.coords.point.set1Value(3, 0, topRight.y, -1)
+
         return
  
     def onChanged(self, vp, prop):
