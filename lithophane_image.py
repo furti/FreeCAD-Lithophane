@@ -237,6 +237,8 @@ class LithophaneImage:
         self.imageHeight = imageSize.height()
         self.imageWidth = imageSize.width()
 
+        self.isLithophaneImage = True
+        
         return None
 
 class ViewProviderLithophaneImage:
