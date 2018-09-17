@@ -1,6 +1,9 @@
 '''Holds the image data for generating the Lithophane'''
-
 from __future__ import division
+
+import sys
+
+IS_PY_3 = sys.version_info.major == 3
 
 import math, os
 import FreeCAD, FreeCADGui
@@ -46,10 +49,20 @@ def imgToBase64(image):
     buffer.open(qtutils.QIODevice.WriteOnly)
     image.save(buffer, 'PNG')
     
-    return ba.toBase64().data()
+    base64Data = ba.toBase64().data()
+
+    if IS_PY_3:
+        base64Data = base64Data.decode('utf-8')
+
+    return base64Data
 
 def imageFromBase64(base64):
-    ba = qtutils.QByteArray.fromBase64(qtutils.QByteArray(base64))
+    base64Data = base64
+
+    if IS_PY_3:
+        base64Data = base64Data.encode('utf-8')
+
+    ba = qtutils.QByteArray.fromBase64(qtutils.QByteArray(base64Data))
     
     return qtutils.QImage.fromData(ba, 'PNG')
 
