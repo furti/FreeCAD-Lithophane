@@ -11,7 +11,7 @@ from pivy import coin
 
 from image_viewer import ImageViewer
 from utils.geometry_utils import pointCloudToLines
-from lithophane_utils import toChunks, tupleToVector, vectorToTuple, convertImageToTexture
+from lithophane_utils import toChunks, tupleToVector, vectorToTuple, convertImageToTexture, recomputeView
 from utils.timer import Timer, computeOverallTime
 import utils.qtutils as qtutils
 
@@ -225,6 +225,12 @@ class LithophaneImage:
 
         fp.UpdateNotifier += 1
 
+    def length(self):
+        return self.lines[-1][-1].x
+
+    def width(self):
+        return self.lines[-1][-1].y
+
     def __getstate__(self):
         '''Store the image as base64 inside the document'''
 
@@ -257,7 +263,7 @@ class LithophaneImage:
         self.isLithophaneImage = True
         
         return None
-
+    
 class ViewProviderLithophaneImage:
     def __init__(self, vobj):
         '''Only set our viewprovider as proxy. No properties needed'''
@@ -314,11 +320,12 @@ class ViewProviderLithophaneImage:
 
             self.texture.image = convertImageToTexture(lithophaneImage.image)
 
-            topRight = lithophaneImage.lines[-1][-1]
+            length = lithophaneImage.length()
+            width = lithophaneImage.width()
             
-            self.coords.point.set1Value(1, topRight.x, 0, -1)
-            self.coords.point.set1Value(2, topRight.x, topRight.y, -1)
-            self.coords.point.set1Value(3, 0, topRight.y, -1)
+            self.coords.point.set1Value(1, length, 0, -1)
+            self.coords.point.set1Value(2, length, width, -1)
+            self.coords.point.set1Value(3, 0, width, -1)
 
         return
  
@@ -343,6 +350,8 @@ def createImage(imagePath):
     a=FreeCAD.ActiveDocument.addObject("App::FeaturePython", imageName)
     image = LithophaneImage(a, imagePath)
     ViewProviderLithophaneImage(a.ViewObject)
+
+    recomputeView()
 
     return image
 

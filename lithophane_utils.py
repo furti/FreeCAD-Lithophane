@@ -12,21 +12,29 @@ def recomputeView():
     FreeCADGui.activeDocument().activeView().viewAxonometric()
     FreeCADGui.SendMsgToActiveView("ViewFit")
 
-def findSelectedImage():
+def findSelectedImage(includeObject=False):
   selection = FreeCADGui.Selection.getSelection()
+
+  if includeObject:
+    notFound = (None, None, None)
+  else:
+    notFound = (None, None)
   
   if len(selection) != 1:
-    return (None, None)
+    return notFound
   
   selectedObject = selection[0]
 
   if not hasattr(selectedObject, 'Proxy') or selectedObject.Proxy is None:
-    return (None, None)
+    return notFound
 
   if not hasattr(selectedObject.Proxy, 'isLithophaneImage') or not selectedObject.Proxy.isLithophaneImage:
-    return (None, None)
+    return notFound
   
-  return (selection[0].Proxy, selection[0].Label)
+  if includeObject:
+    return (selection[0].Proxy, selection[0].Label, selection[0])
+  else:
+    return (selection[0].Proxy, selection[0].Label)
 
 def findSelectedMesh():
   selection = FreeCADGui.Selection.getSelection()

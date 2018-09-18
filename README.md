@@ -69,6 +69,8 @@ The name of the imported image object will be taken from the image file.
 
 The image is also shown in the 3D View. The image is converted to grayscale and the size is the same as the final geometry created with the `Create Box` command. So you get a feeling for the final geometry even before creating it. The image is displayed 1 mm beneath the XY Plane. This makes it possible to trace over the image when needed.
 
+To hide or show the image in the 3D view, select it and hit `Space`.
+
 **The pixel data whil be computed every time you recompute the image object!** This can happen when you change some settings of the image or force a recompute of the whole document.
 For performance reasons the calculated point cloud is stored inside the FreeCAD file. So your files can get pretty big real fast when you import big images.
 
@@ -119,6 +121,16 @@ The name of the resulting mesh will be taken from the selected LithophaneImage. 
 ![Final Geometry](./Resources/Documentation/geometry_3dview.png)
 
 More Features might follow: https://github.com/furti/FreeCAD-Lithophane/issues/15
+
+### Scale Image
+![Scale Image](./Resources/Icons/Scale.svg)
+
+This command can be used to scale the selected LithophaneImage. When executed, a task dialog will be shown. You can enter either the new length or width of the image. Entering one value will adjust the other value accordingly.
+
+ - OK will apply the new size to the image
+ - Cancel will simply close the dialog and nothing will be applied
+
+![Scale Dialog](./Resources/Documentation/scale_dialog.png)
 
 ### Make Solid
 ![Import Image](./Resources/Icons/MakeSolid.svg)

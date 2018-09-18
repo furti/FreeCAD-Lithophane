@@ -13,6 +13,7 @@ toolbarManager = ToolbarManager()
 # geometry tools
 import import_image
 import create_box
+import scale
 
 # solid tools
 import make_solid
