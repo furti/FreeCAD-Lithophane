@@ -109,7 +109,7 @@ The Path to the image file. You can change it to another image here if you want 
 
 The number of image pixels that will end up in one inch of the resulting geometry. Higher values normally result in more details in the final image. This property basically affects the size of the final geometry.
 
-There will be a command in the future that helps you with calculating the right ppi value based on the final size you want for your image. https://github.com/furti/FreeCAD-Lithophane/issues/7
+See `Scale Image` for a command that helps you adjusting this value.
 
 ### Create Box
 ![Import Image](./Resources/Icons/CreateBox.svg)
