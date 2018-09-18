@@ -11,6 +11,7 @@ class ScalePanel():
         self.freeCadObject = freeCadObject
         self.originalLength = image.length()
         self.originalWidth = image.width()
+        self.selectedWire = None
         self.scaleFactor = 1
 
         self.form = FreeCADGui.PySideUic.loadUi(uiPath('scale_dialog.ui'))
@@ -18,11 +19,15 @@ class ScalePanel():
         self.LengthBox = self.form.LengthBox
         self.WidthBox = self.form.WidthBox
         self.InfoLabel = self.form.InfoLabel
+        self.LineInfo = self.form.LineInfo
+        self.LineLengthBox = self.form.LineLengthBox
         self.LengthBox.setValue(self.originalLength)
         self.WidthBox.setValue(self.originalWidth)
 
         self.LengthBox.valueChanged.connect(self.lengthChanged)
         self.WidthBox.valueChanged.connect(self.widthChanged)
+        self.LineLengthBox.valueChanged.connect(self.lineLengthChanged)
+        self.form.SelectLineButton.clicked.connect(self.selectLine)
     
     def accept(self):
         FreeCADGui.Control.closeDialog()
@@ -42,6 +47,9 @@ class ScalePanel():
         FreeCADGui.Control.closeDialog()
     
     def lengthChanged(self):
+        if self.selectedWire is not None:
+            return
+
         self.updateScaleFactor(self.originalLength, self.LengthBox.value())
         
         newWidth = self.originalWidth * self.scaleFactor
@@ -50,6 +58,9 @@ class ScalePanel():
             self.WidthBox.setValue(newWidth)
 
     def widthChanged(self):
+        if self.selectedWire is not None:
+            return
+
         self.updateScaleFactor(self.originalWidth, self.WidthBox.value())
         
         newLength = self.originalLength * self.scaleFactor
@@ -57,6 +68,47 @@ class ScalePanel():
         if self.LengthBox.value() != newLength:
             self.LengthBox.setValue(newLength)
     
+    def lineLengthChanged(self):
+        if self.selectedWire is None:
+            return
+        
+        originalLength = self.selectedWire.Length.Value
+        newLength = self.LineLengthBox.value()
+
+        if originalLength == newLength:
+            return
+        
+        self.updateScaleFactor(originalLength, newLength)
+
+        self.LengthBox.setValue(self.originalLength * self.scaleFactor)
+        self.WidthBox.setValue(self.originalWidth * self.scaleFactor)
+
+    def selectLine(self):
+        import Draft
+
+        selection = FreeCADGui.Selection.getSelection()
+
+        if len(selection) == 0:
+            self.InfoLabel.setText('Select exactly one Wire to continue.')
+            return
+        
+        draftType = Draft.getType(selection[0])
+
+        if draftType != 'Wire':
+            self.InfoLabel.setText('Select exactly one Wire to continue. Selected object is of type %s' % (draftType))
+            return
+        
+        self.InfoLabel.setText('')
+
+        self.selectedWire = selection[0]
+        self.LineInfo.setText('%s / %smm' %(self.selectedWire.Label, self.selectedWire.Length.Value))
+        
+        self.LineLengthBox.setEnabled(True)
+        self.LineLengthBox.setValue(self.selectedWire.Length.Value)
+
+        self.LengthBox.setEnabled(False)
+        self.WidthBox.setEnabled(False)
+
     def updateScaleFactor(self, old, new):
         self.scaleFactor = new / old
 

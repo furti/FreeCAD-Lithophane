@@ -125,12 +125,18 @@ More Features might follow: https://github.com/furti/FreeCAD-Lithophane/issues/1
 ### Scale Image
 ![Scale Image](./Resources/Icons/Scale.svg)
 
-This command can be used to scale the selected LithophaneImage. When executed, a task dialog will be shown. You can enter either the new length or width of the image. Entering one value will adjust the other value accordingly.
+This command can be used to scale the selected LithophaneImage. When executed, a task dialog will be shown. 
+
+![Scale Dialog](./Resources/Documentation/scale_dialog.png)
+
+The scale command can be used in two different ways:
+1. When startet, the input fields in the "Scale Image" section are enabled. You can enter either the new length or width of the image. Entering one value will adjust the other value accordingly.
+2. Or You can draw a draft Line in the 3D View. Select it and click the `Select Line` button. This will enable the Line Length input field. You can enter a new length here and the image size will be changed accordingly. This is especially useful when you want to scale some object in the image to a specific size. e.g. there is a line in the image you want to have 10mm wide.
 
  - OK will apply the new size to the image
  - Cancel will simply close the dialog and nothing will be applied
 
-![Scale Dialog](./Resources/Documentation/scale_dialog.png)
+
 
 ### Make Solid
 ![Import Image](./Resources/Icons/MakeSolid.svg)
