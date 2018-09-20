@@ -15,7 +15,7 @@ class MeasureCommand:
                 'Pixmap': iconPath('Measure.svg')}
 
     def Activated(self):
-        mesh = lithophane_utils.findSelectedMesh()[0]
+        mesh, label = lithophane_utils.findSelectedMesh()
 
         if mesh is None:
           qtutils.showInfo("No Mesh selected", "Select exactly one Mesh to continue")

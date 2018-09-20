@@ -40,14 +40,14 @@ def findSelectedMesh():
   selection = FreeCADGui.Selection.getSelection()
   
   if len(selection) != 1:
-    return None
+    return (None, None)
   
   selectedObject = selection[0]
 
   if not hasattr(selectedObject, 'Mesh'):
-    return None
+    return (None, None)
 
-  return selection[0].Mesh, selection[0].Label
+  return (selection[0].Mesh, selection[0].Label)
 
 def vectorAtGround(vector):
   return FreeCAD.Vector(vector.x, vector.y, 0)
