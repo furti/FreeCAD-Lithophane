@@ -293,12 +293,19 @@ class ViewProviderLithophaneImage:
         faceset = coin.SoFaceSet()
         faceset.numVertices.set1Value(0, 4)
 
+        # This makes it possible to select the object in the 3D View
+        selectionNode = coin.SoType.fromName("SoFCSelection").createInstance()
+        selectionNode.documentName.setValue(FreeCAD.ActiveDocument.Name)
+        selectionNode.objectName.setValue(self.Object.Name)
+        selectionNode.subElementName.setValue("Face")
+        selectionNode.addChild(faceset)
+
         self.texture = coin.SoTexture2()
 
         self.imageNode.addChild(self.coords)
         self.imageNode.addChild(textureCoords)
         self.imageNode.addChild(self.texture)
-        self.imageNode.addChild(faceset)
+        self.imageNode.addChild(selectionNode)
 
         vobj.addDisplayMode(self.imageNode, "LithophaneImage");
 
