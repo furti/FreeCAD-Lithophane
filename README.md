@@ -67,7 +67,7 @@ Depending on the image and your machine, it might take a while for the import to
 
 The name of the imported image object will be taken from the image file.
 
-The image is also shown in the 3D View. The image is converted to grayscale and the size is the same as the final geometry created with the `Create Box` command. So you get a feeling for the final geometry even before creating it. The image is displayed 1 mm beneath the XY Plane. This makes it possible to trace over the image when needed.
+The image is also shown in the 3D View. The image is converted to grayscale and the size is the same as the final geometry created with the `Create Box` command. So you get a feeling for the final geometry even before creating it. The image is displayed 1 mm beneath the XY Plane. This makes it possible to trace over the image when needed. You can even select the image in the 3D view by clicking on it.
 
 To hide or show the image in the 3D view, select it and hit `Space`.
 
@@ -143,7 +143,7 @@ The scale command can be used in two different ways:
 
 Converts the Mesh selected to a solid. Should only be used with meshes created by the Lithophane Workbench because this command makes some assumptions on the structure of the mesh to speed up mesh creation. You have to select a single Mesh in the TreeView for this command to work.
 
-**This command can take a long time and freeze your FreeCAD instance**. You can check the ReportView for the progress of the command. It shows a message after each step.
+**This command can take a long time and freeze your FreeCAD instance**.
 
 This command might be handy to convert your mesh and use the power of FreeCAD to modify the resulting Lithophane the way you want.
 
@@ -164,6 +164,13 @@ Displays all the Points the LithophaneImage contains in the 3D View. You have to
 This command might be useful for debugging purposes to check if the pixel data was interpreted as you imagine.
 
 </details>
+
+## Progress Indicator
+
+Commands that might take a while to recompute display a progress indicator in the bottom right corner of the FreeCAD window. So you can guess how long the command might take to finish.
+![ProgressBar](./Resources/Documentation/progress_bar.png)
+
+It is not possible to cancel a long running task right now. But it will be possible in the future(https://github.com/furti/FreeCAD-Lithophane/issues/31)
 
 ## Image Viewer
 
