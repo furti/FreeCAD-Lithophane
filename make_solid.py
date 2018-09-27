@@ -8,6 +8,7 @@ import lithophane_utils
 from utils.timer import Timer, computeOverallTime
 from utils.resource_utils import iconPath
 import utils.qtutils as qtutils
+from base_lithophane_processor import BaseLithophaneProcessor
 
 class Neighbours:
     def __init__(self, face):
@@ -68,50 +69,63 @@ def wiresFromFaceGroups(mesh, faceGroups):
 
     return wires
 
-class MakeSolidCommand:
+class MakeSolidCommand(BaseLithophaneProcessor):
     toolbarName = 'Part_Tools'
     commandName = 'Make_Solid'
+
+    def __init__(self):
+        super(MakeSolidCommand, self).__init__('Make Solid')
+
+    def getProcessingSteps(self, fp):
+        return [('Group Faces', self.groupFaces), 
+        ('Calculate Wires from Groups', self.calculateWires), 
+        ('Calculate Faces from Wires', self.calculateFaces), 
+        ('Create Shell from Faces', self.computeShell),
+        ('Recompute View', self.recomputeView)]
 
     def GetResources(self):
         return {'MenuText': "Make Solid",
                 'ToolTip' : "Creates a Part Object out of the selected Mesh",
                 'Pixmap': iconPath('MakeSolid.svg')}
 
-    def Activated(self):
+    def checkExecution(self):
         mesh, meshLabel = lithophane_utils.findSelectedMesh()
 
         if mesh is None:
           qtutils.showInfo("No mesh selected", "Select exactly one mesh to continue")
 
-          return
-
-        timers = []
+          return None
         
+        return (mesh, meshLabel)
 
-        timers.append(Timer('Grouping Faces (1/5)'))
-        faceGroups = groupFaces(mesh)
-        timers[-1].stop()
+    def groupFaces(self, meshData):
+        return (groupFaces(meshData[0]), meshData)
 
-        timers.append(Timer('Calculating Wires from Groups (2/5)'))
-        wires = wiresFromFaceGroups(mesh, faceGroups)
-        timers[-1].stop()
+    def calculateWires(self, groupData):
+        faceGroups = groupData[0]
+        meshData = groupData[1]
 
-        timers.append(Timer('Calculating Faces from Wires (3/5)'))
-        faces = [Part.Face(wire) for wire in wires]
-        timers[-1].stop()
-
-        timers.append(Timer('Creating Shell from Faces (4/5)'))
-        shell = Part.Compound(faces)
-        timers[-1].stop()
-
-        timers.append(Timer('Recomputing View (5/5)'))
-        Part.show(shell, meshLabel + '_Solid')
-        lithophane_utils.recomputeView()
-        timers[-1].stop()
-
-        FreeCAD.Console.PrintMessage('Creating solid took %.3f s' % (computeOverallTime(timers)))
-
+        return (wiresFromFaceGroups(meshData[0], faceGroups), meshData)
     
+    def calculateFaces(self, wireData):
+        wires = wireData[0]
+        meshData = wireData[1]
+
+        return ([Part.Face(wire) for wire in wires], meshData)
+    
+    def computeShell(self, faceData):
+        faces = faceData[0]
+        meshData = faceData[1]
+
+        return (Part.Compound(faces), meshData)
+    
+    def recomputeView(self, shellData):
+        shell = shellData[0]
+        meshData = shellData[1]
+
+        Part.show(shell, meshData[1] + '_Solid')
+        lithophane_utils.recomputeView()
+
     def IsActive(self):
         """There should be at least an active document."""
         return not FreeCAD.ActiveDocument is None

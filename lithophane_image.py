@@ -14,6 +14,7 @@ from utils.geometry_utils import pointCloudToLines
 from lithophane_utils import toChunks, tupleToVector, vectorToTuple, convertImageToTexture, recomputeView
 from utils.timer import Timer, computeOverallTime
 import utils.qtutils as qtutils
+from base_lithophane_processor import BaseLithophaneProcessor
 
 class AverageVector:
     def __init__(self):
@@ -174,9 +175,11 @@ def nearestLayerHeight(lines, layerHeight):
 
     return roundedLines
 
-class LithophaneImage:
+class LithophaneImage(BaseLithophaneProcessor):
     def __init__(self, obj, imagePath):
         '''Add properties for image like path'''
+        super(LithophaneImage, self).__init__('Recalculate Image')
+
         obj.addProperty("App::PropertyString","Path","LithophaneImage","Path to the original image").Path=imagePath
         obj.addProperty("App::PropertyFloat", "ppi", "LithophaneImage", "Pixels per Inch").ppi = 300
         obj.addProperty("App::PropertyLength", "NozzleSize", "LithophaneImage", "Size of your 3D printers Nozzle").NozzleSize = 0.4
@@ -191,37 +194,33 @@ class LithophaneImage:
         self.lastPath = imagePath
         self.isLithophaneImage = True
 
-    def execute(self, fp):
-        '''Recompute the image when something changed'''
+    def getProcessingSteps(self, fp):
+        return [('Reload Image', self.reloadImage), 
+        ('Compute Point Cloud', self.computePointcloud), 
+        ('Compute Nozzle Size', self.computeNozzleSize), 
+        ('Compute Layer Height', self.computeLayerHeight)]
 
-        timers = []
-        
+    def reloadImage(self, fp):
         if imageChanged(self, fp.Path):
-            timers.append(Timer('ReloadingImage (1/4)'))
             self.image = qtutils.readImage(fp.Path)
             self.lastPath = fp.Path
 
             imageSize = self.image.size()
             self.imageHeight = imageSize.height()
             self.imageWidth = imageSize.width()
-            timers[-1].stop()
-
-        timers.append(Timer('Computing Point Cloud (2/4)'))
-        pointData = computeLines(self.image, fp.ppi, fp.BaseHeight, fp.MaximumHeight)
-        timers[-1].stop()
-
-        timers.append(Timer('Computing Nozzle Size (3/4)'))
-        lines = averageByNozzleSize(pointData[0], fp.ppi, fp.NozzleSize)
-        timers[-1].stop()
-
-        timers.append(Timer('Computing Layer Height (4/4)'))
-        lines = nearestLayerHeight(lines, fp.LayerHeight.Value)
-        timers[-1].stop()
-
-        FreeCAD.Console.PrintMessage('Recalculating image took %.3f s' % (computeOverallTime(timers)))
-
-        self.lines = lines
-        self.maxHeight = pointData[1]
+    
+    def computePointcloud(self, fp):
+        return computeLines(self.image, fp.ppi, fp.BaseHeight, fp.MaximumHeight)
+    
+    def computeNozzleSize(self, fp, pointData):
+        return (averageByNozzleSize(pointData[0], fp.ppi, fp.NozzleSize), pointData[1])
+    
+    def computeLayerHeight(self, fp, lineData):
+        return (nearestLayerHeight(lineData[0], fp.LayerHeight.Value), lineData[1])
+    
+    def processingDone(self, fp, lineData):
+        self.lines = lineData[0]
+        self.maxHeight = lineData[1]
 
         fp.UpdateNotifier += 1
 
@@ -245,6 +244,8 @@ class LithophaneImage:
  
     def __setstate__(self,state):
         '''Restore the state'''
+
+        super(LithophaneImage, self).__init__('Recalculate Image')
 
         base64ImageOriginal = state[0]
 

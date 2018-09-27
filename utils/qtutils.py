@@ -23,6 +23,7 @@ QScrollArea = QtWidgets.QScrollArea
 QPalette = QtWidgets.QPalette
 QSizePolicy = QtWidgets.QSizePolicy
 QPixmap = QtWidgets.QPixmap
+QThread = QtCore.QThread
 
 # File patterns
 IMAGE_FILES = "Image Files (*.png *.jpg *.bmp)"
@@ -58,8 +59,9 @@ def readImage(imagePath):
         showInfo("Image Read Error", "Can't read image: %s" % imageReader.errorString())
 
 def processEvents():
-  time.sleep(0.001)
-  QtGui.QApplication.processEvents()
+    QtGui.QApplication.processEvents()
+    time.sleep(0.1)
+
  
 # https://github.com/PySide/pyside2/wiki/My_Practice_:_Porting_python_scripts_to_PySide2#qhboxlayout-qvboxlayout
 # important info about layout in qt4 and qt5
