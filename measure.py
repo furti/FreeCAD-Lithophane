@@ -30,7 +30,7 @@ class MeasureCommand:
 
         message = "Length (X): %s\n\nWidth (Y): %s\n\nHeight (Z): %s" %(length, width, height)
 
-        qtutils.showInfo("Bounding Informations", message)
+        qtutils.showInfo("Bounding Information", message)
     
     def IsActive(self):
         """There should be at least an active document."""

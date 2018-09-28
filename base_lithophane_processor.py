@@ -11,7 +11,7 @@ class WorkerThread(QThread):
         self.fp = fp
         self.startParameter = startParameter
         self.running = True
-    
+
     def executeStep(self, step, lastReturnValue):
         if self.fp is not None:
             if lastReturnValue is not None:
@@ -23,7 +23,7 @@ class WorkerThread(QThread):
                 lastReturnValue = step(lastReturnValue)
             else:
                 lastReturnValue = step()
-        
+
         return lastReturnValue
 
     def run(self):
@@ -43,17 +43,17 @@ class WorkerThread(QThread):
 
             if self.startParameter != '<ignore>':
                 lastReturnValue = self.startParameter
-            
+
             for stepDescription, step in processingSteps:
                 timers.append(Timer('%s (%s/%s)' % (stepDescription, actualStep, numberOfSteps)))
-                
+
                 lastReturnValue = self.executeStep(step, lastReturnValue)
 
                 progress_bar.next()
                 timers[-1].stop()
-                
+
                 actualStep += 1
-            
+
             processor.processingDone(fp, lastReturnValue)
             FreeCAD.Console.PrintMessage('%s took %.3f s' % (processor.description, computeOverallTime(timers)))
         except:
@@ -65,9 +65,9 @@ class WorkerThread(QThread):
 class BaseLithophaneProcessor(object):
     def __init__(self, description):
         self.description = description
-    
+
     def getProcessingSteps(self, fp):
-        raise NotImplementedError('Subclasses must override this to provie a list of steps')
+        raise NotImplementedError('Subclasses must override this to provide a list of steps')
 
     def execute(self, fp):
         startParameter = self.checkExecution()
@@ -80,7 +80,7 @@ class BaseLithophaneProcessor(object):
 
         while worker.running:
             processEvents()
-    
+
     def Activated(self):
         startParameter = self.checkExecution()
 
@@ -92,11 +92,10 @@ class BaseLithophaneProcessor(object):
 
         while worker.running:
             processEvents()
-    
+
     def checkExecution(self):
         return '<ignore>'
-    
+
     def processingDone(self, fp, params):
         # subclasses might override this
         pass
-
