@@ -45,10 +45,10 @@ def buildTinyPoints():
             # Eight column is 50% grey. So at height 1.75 millimeters
             if column == 7:
                 line.append(vector(distanceBetweenPoints * column, distanceBetweenPoints * row, 1.75))
-            # First 3 pixels of third colum are 25% grey. 1.1mm
+            # First 3 pixels of third column are 25% grey. 1.1mm
             elif row == 2 and column < 3:
                 line.append(vector(distanceBetweenPoints * column, distanceBetweenPoints * row, 1.1))
-            # First 5 pixels of ninth colum are black. so at full height
+            # First 5 pixels of ninth column are black. so at full height
             elif row == 8 and column < 5:
                 line.append(vector(distanceBetweenPoints * column, distanceBetweenPoints * row, 3))
             else:

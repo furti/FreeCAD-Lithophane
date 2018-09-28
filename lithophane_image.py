@@ -71,7 +71,7 @@ def calculatePixelHeight(image, x, y, baseHeight, maximumHeight):
     '''Calculate the height of the pixel based on its lightness value.
     Lighter colors mean lower height because the light must come through.
     Maximum lightness 255 means the base height
-    Minium lightness 0 means the full height of base height + additional height
+    Minimum lightness 0 means the full height of base height + additional height
 
     When alpha channel has some transparency (alpha value < 255) we calculate the height
     based on the alpha value. 254 means maximumHeight and 0 means baseHeight

@@ -41,9 +41,9 @@ to this awesome Lithophane
     - **FreeCAD might be unresponsive during the import**
 
 7. Now you should see the image in the TreeView and the Viewport. You can pan and zoom to look on the image from different sides.
-    - See [Mouse Model](https://www.freecadweb.org/wiki/Mouse_Model) for more informations on how to navigate in FreeCADs 3D View
+    - See [Mouse Model](https://www.freecadweb.org/wiki/Mouse_Model) for more information on how to navigate in FreeCADs 3D View
 
-8. Select the generated mesh in the TreeView and click on `File -> Export`. Choose `STL Mesh` (Or anything your slicer software could handle) as file format and save the file somwhere on your machine.
+8. Select the generated mesh in the TreeView and click on `File -> Export`. Choose `STL Mesh` (Or anything your slicer software could handle) as file format and save the file somewhere on your machine.
     - ![Select Image](./Resources/Documentation/tree_view_mesh.png)
 
 9. Fire Up your slicer (e.g. Cura) and load the exported file. Adapt the settings according to your 3D Printer and save the gcode. Load the gcode in your printer and let it print. This might take some hours to finish.
@@ -61,7 +61,7 @@ This section describes each command in the workbench.
 ### Import Image
 ![Import Image](./Resources/Icons/ImportImage.svg)
 
-The command imports a new Image into the document. Therefor a Dialog is shown that let you select an image. After the image is selected it calculates the Point cloud from the pixel data of the image.
+The command imports a new Image into the document. Therefore a Dialog is shown that let you select an image. After the image is selected it calculates the Point cloud from the pixel data of the image.
 
 Depending on the image and your machine, it might take a while for the import to finish. On my 8 years old Intel i7-2670QM it takes about 8 seconds to import the windmill image (814x1000 pixels). **FreeCAD might be unresponsive during the import**.
 
@@ -99,7 +99,7 @@ This value should be set to the layer height you select in your slicer software.
 
 The nozzle of the 3D Printer defines how wide a line the printer prints will end up. Based on the image size we might end up with a huge amount of points, that might be impossible to handle for FreeCAD. Based on the dpi settings we might end up with points every 0.0something mm in X and Y direction. So we calculate the average of all the points in a `Nozzle Size`x`Nozzle Size` area to reduce the number of points drastically.
 
-This value should match the nozzle size of your 3D Printer. It can be set to 0 to get the raw pixel data without averaging neightbour pixels. As said before. This can freeze your FreeCAD installation for a long time or crash it.
+This value should match the nozzle size of your 3D Printer. It can be set to 0 to get the raw pixel data without averaging neighbour pixels. As said before. This can freeze your FreeCAD installation for a long time or crash it.
 
 **Path**
 
