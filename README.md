@@ -122,6 +122,15 @@ The name of the resulting mesh will be taken from the selected LithophaneImage. 
 
 More Features might follow: https://github.com/furti/FreeCAD-Lithophane/issues/15
 
+### Create Tube / Cylinder
+![Create Tube](./Resources/Icons/CreateTube.svg)
+
+Creates the Lithophane geometry in the shape of a Tube or Cylinder with the image wraped around. You have to select the LithophaneImage in the TreeView before executing the command.
+
+The name of the resulting mesh will be taken from the selected LithophaneImage. When the selected image is named `Windmill` the resulting mesh will be named `Windmill_Tube`.
+
+![Final Geometry](./Resources/Documentation/geometry_tube.png)
+
 ### Scale Image
 ![Scale Image](./Resources/Icons/Scale.svg)
 
