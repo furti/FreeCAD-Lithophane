@@ -79,26 +79,36 @@ def convertImageToTexture(image):
     soImage = coin.SoSFImage()
     width = size[0]
     height = size[1]
-    imageBytes = b''
+    # imageBytes = b''
 
-    for y in range(height -1, -1, -1):
-        for x in range(width):
-            rgb = image.pixel(x,y)
-            color = qtutils.QColor()
-            color.setRgba(rgb)
-            alpha = color.alpha()
-            value = 0
-
-            if alpha < 255:
-                value = 254 - alpha
-            else:
-                value = color.lightness()
-            
-            if IS_PY_3:
-                imageBytes = imageBytes + chr(value).encode('latin-1')
-            else:
-                imageBytes = imageBytes + chr(value)
-
-    soImage.setValue(size, 1, imageBytes)
+    byteList = []
     
+    for y in range(height -1, -1, -1):
+          for x in range(width):
+              
+              rgb = image.pixel(x,y)
+              color = qtutils.QColor()
+              color.setRgba(rgb)
+              alpha = color.alpha()
+              value = 0
+
+              if alpha < 255:
+                  value = 254 - alpha
+              else:
+                  value = color.lightness()
+              
+              if IS_PY_3:
+                  byteList.append(chr(value).encode('latin-1'))
+              else:
+                  byteList.append(chr(value))
+
+    imageBytes = b''.join(byteList)
+    soImage.setValue(size, 1, imageBytes)
+
     return soImage
+  
+if __name__ == '__main__':
+  imagePath = 'C:\\Meine Daten\\projects\\02_Lithophane\\Nachttischlampe_Rund\\Bauernhof.jpg'
+  image = qtutils.readImage(imagePath)
+
+  print(convertImageToTexture(image))
