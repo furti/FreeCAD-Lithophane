@@ -134,18 +134,31 @@ The name of the resulting mesh will be taken from the selected LithophaneImage. 
 ### Scale Image
 ![Scale Image](./Resources/Icons/Scale.svg)
 
-This command can be used to scale the selected LithophaneImage. When executed, a task dialog will be shown. 
+This command can be used to scale the selected LithophaneImage. When executed, a task dialog will be shown.
 
-![Scale Dialog](./Resources/Documentation/scale_dialog.png)
-
-The scale command can be used in two different ways:
-1. When startet, the input fields in the "Scale Image" section are enabled. You can enter either the new length or width of the image. Entering one value will adjust the other value accordingly.
-2. Or You can draw a draft Line in the 3D View. Select it and click the `Select Line` button. This will enable the Line Length input field. You can enter a new length here and the image size will be changed accordingly. This is especially useful when you want to scale some object in the image to a specific size. e.g. there is a line in the image you want to have 10mm wide.
-
- - OK will apply the new size to the image
+- OK will apply the new size to the image (Recompution might take a while)
  - Cancel will simply close the dialog and nothing will be applied
 
+The command has 3 different modes of operation:
 
+#### Scale Length/Width of image
+
+![Scale Length/Width](./Resources/Documentation/scale_length_width.png)
+
+You can enter either the new length or width of the image. Entering one value will adjust the other value accordingly.
+
+
+#### Scale by selected Wire
+
+![Scale by wire](./Resources/Documentation/scale_wire.png)
+
+You can draw a draft Line in the 3D View. Select it and click the `Select Line` button. This will enable the Line Length input field. You can enter a new length here and the image size will be changed accordingly. This is especially useful when you want to scale some object in the image to a specific size. e.g. there is a line in the image you want to have 10mm wide.
+
+#### Scale by Diameter
+
+![Scale by Diameter](./Resources/Documentation/scale_diameter.png)
+
+This mode is especially useful when creating cylindrical lithophanes and you want to scale the image to fit a certain diameter. Simply put the diameter in the input box and the length and width of the image will be adjusted accordingly.
 
 ### Make Solid
 ![Import Image](./Resources/Icons/MakeSolid.svg)

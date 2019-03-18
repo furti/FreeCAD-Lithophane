@@ -1,6 +1,7 @@
 import sys
 IS_PY_3 = sys.version_info.major == 3
 
+import math
 import FreeCAD, FreeCADGui
 import itertools, Mesh
 from pivy import coin
@@ -106,7 +107,13 @@ def convertImageToTexture(image):
     soImage.setValue(size, 1, imageBytes)
 
     return soImage
-  
+
+def diameterFromPerimeter(perimeter):
+  return perimeter / math.pi
+
+def perimeterFromDiameter(diameter):
+  return diameter * math.pi
+
 if __name__ == '__main__':
   imagePath = 'C:\\Meine Daten\\projects\\02_Lithophane\\Nachttischlampe_Rund\\Bauernhof.jpg'
   image = qtutils.readImage(imagePath)

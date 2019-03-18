@@ -13,21 +13,36 @@ class ScalePanel():
         self.originalWidth = image.width()
         self.selectedWire = None
         self.scaleFactor = 1
+        self.skipEvents = False
 
         self.form = FreeCADGui.PySideUic.loadUi(uiPath('scale_dialog.ui'))
 
+        self.InfoLabel = self.form.InfoLabel
+        
         self.LengthBox = self.form.LengthBox
         self.WidthBox = self.form.WidthBox
-        self.InfoLabel = self.form.InfoLabel
+        
         self.LineInfo = self.form.LineInfo
         self.LineLengthBox = self.form.LineLengthBox
-        self.LengthBox.setValue(self.originalLength)
-        self.WidthBox.setValue(self.originalWidth)
+
+        self.DiameterBox = self.form.DiameterBox
 
         self.LengthBox.valueChanged.connect(self.lengthChanged)
         self.WidthBox.valueChanged.connect(self.widthChanged)
         self.LineLengthBox.valueChanged.connect(self.lineLengthChanged)
         self.form.SelectLineButton.clicked.connect(self.selectLine)
+        self.DiameterBox.valueChanged.connect(self.diameterChanged)
+
+        self.updateValues()
+    
+    def updateValues(self):
+        self.skipEvents = True
+
+        self.LengthBox.setValue(self.originalLength * self.scaleFactor)
+        self.WidthBox.setValue(self.originalWidth * self.scaleFactor)
+        self.DiameterBox.setValue(lithophane_utils.diameterFromPerimeter(self.originalLength * self.scaleFactor))
+        
+        self.skipEvents = False
     
     def accept(self):
         FreeCADGui.Control.closeDialog()
@@ -47,29 +62,22 @@ class ScalePanel():
         FreeCADGui.Control.closeDialog()
     
     def lengthChanged(self):
-        if self.selectedWire is not None:
+        if self.skipEvents:
             return
 
         self.updateScaleFactor(self.originalLength, self.LengthBox.value())
+
+        self.updateValues()
         
-        newWidth = self.originalWidth * self.scaleFactor
-
-        if self.WidthBox.value() != newWidth:
-            self.WidthBox.setValue(newWidth)
-
     def widthChanged(self):
-        if self.selectedWire is not None:
+        if self.skipEvents:
             return
 
         self.updateScaleFactor(self.originalWidth, self.WidthBox.value())
+        self.updateValues()
         
-        newLength = self.originalLength * self.scaleFactor
-
-        if self.LengthBox.value() != newLength:
-            self.LengthBox.setValue(newLength)
-    
     def lineLengthChanged(self):
-        if self.selectedWire is None:
+        if self.selectedWire is None or self.skipEvents:
             return
         
         originalLength = self.selectedWire.Length.Value
@@ -79,9 +87,17 @@ class ScalePanel():
             return
         
         self.updateScaleFactor(originalLength, newLength)
+        self.updateValues()
+    
+    def diameterChanged(self):
+        if self.skipEvents:
+            return
+        
+        newDiameter = self.DiameterBox.value()
+        newPerimeter = lithophane_utils.perimeterFromDiameter(newDiameter)
 
-        self.LengthBox.setValue(self.originalLength * self.scaleFactor)
-        self.WidthBox.setValue(self.originalWidth * self.scaleFactor)
+        self.updateScaleFactor(self.originalLength, newPerimeter)
+        self.updateValues()
 
     def selectLine(self):
         import Draft
