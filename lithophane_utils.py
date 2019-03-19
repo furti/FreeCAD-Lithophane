@@ -1,5 +1,5 @@
 import sys
-IS_PY_3 = sys.version_info.major == 3
+IS_PY_2 = sys.version_info.major < 3
 
 import math
 import FreeCAD, FreeCADGui
@@ -98,10 +98,10 @@ def convertImageToTexture(image):
               else:
                   value = color.lightness()
               
-              if IS_PY_3:
-                  byteList.append(chr(value).encode('latin-1'))
-              else:
+              if IS_PY_2:
                   byteList.append(chr(value))
+              else:
+                  byteList.append(chr(value).encode('latin-1'))
 
     imageBytes = b''.join(byteList)
     soImage.setValue(size, 1, imageBytes)

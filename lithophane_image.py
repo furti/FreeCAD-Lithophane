@@ -3,7 +3,7 @@ from __future__ import division
 
 import sys
 
-IS_PY_3 = sys.version_info.major == 3
+IS_PY_2 = sys.version_info.major < 3
 
 import math, os
 import FreeCAD, FreeCADGui
@@ -52,7 +52,7 @@ def imgToBase64(image):
     
     base64Data = ba.toBase64().data()
 
-    if IS_PY_3:
+    if not IS_PY_2:
         base64Data = base64Data.decode('utf-8')
 
     return base64Data
@@ -60,7 +60,7 @@ def imgToBase64(image):
 def imageFromBase64(base64):
     base64Data = base64
 
-    if IS_PY_3:
+    if not IS_PY_2:
         base64Data = base64Data.encode('utf-8')
 
     ba = qtutils.QByteArray.fromBase64(qtutils.QByteArray(base64Data))
