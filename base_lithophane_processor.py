@@ -41,7 +41,7 @@ class WorkerThread(QThread):
 
             processingSteps = processor.getProcessingSteps(fp)
 
-            numberOfSteps = len(processingSteps)
+            numberOfSteps = len(processingSteps) + 1
             progress_bar.start(processor.description, numberOfSteps)
             actualStep = 1
             lastReturnValue = None
@@ -64,7 +64,12 @@ class WorkerThread(QThread):
                 actualStep += 1
 
             if not CANCEL_TASK:
+                timers.append(Timer('%s (%s/%s)' % ('Post Processing', actualStep, numberOfSteps)))
+
                 processor.processingDone(fp, lastReturnValue)
+                
+                progress_bar.next()
+                timers[-1].stop()
             
             FreeCAD.Console.PrintMessage('%s took %.3f s' % (processor.description, computeOverallTime(timers)))
         except:
