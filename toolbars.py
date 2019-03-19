@@ -25,3 +25,4 @@ import make_solid
 # debugging tools
 import measure
 import show_pointcloud
+import cancel_task
