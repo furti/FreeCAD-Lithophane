@@ -185,6 +185,13 @@ Displays all the Points the LithophaneImage contains in the 3D View. You have to
 
 This command might be useful for debugging purposes to check if the pixel data was interpreted as you imagine.
 
+### Cancel Task
+![Cancel Task](./Resources/Icons/CancelTask.svg)
+
+Cancels the current running operation. The operation will not be canceled immediately but after the current step is finished.
+
+This is useful for cancelling long running tasks (e.g. you imported a way to big image).
+
 </details>
 
 ## Progress Indicator
@@ -192,7 +199,7 @@ This command might be useful for debugging purposes to check if the pixel data w
 Commands that might take a while to recompute display a progress indicator in the bottom right corner of the FreeCAD window. So you can guess how long the command might take to finish.
 ![ProgressBar](./Resources/Documentation/progress_bar.png)
 
-It is not possible to cancel a long running task right now. But it will be possible in the future(https://github.com/furti/FreeCAD-Lithophane/issues/31)
+It is possible to cancel a long running task. See ```Cancel Task``` in the ```Command Details``` section.
 
 ## Image Viewer
 
