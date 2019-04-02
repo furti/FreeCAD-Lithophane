@@ -50,6 +50,56 @@ def findSelectedMesh():
 
   return (selection[0].Mesh, selection[0].Label)
 
+def findSelectedBooleanMesh():
+    selection = FreeCADGui.Selection.getSelection()
+
+    notFound = (None, None)
+    
+    if len(selection) < 1:
+        return notFound
+    
+    for selectedObject in selection:
+        print(selectedObject)
+        if not hasattr(selectedObject, 'Proxy') or selectedObject.Proxy is None:
+            continue
+
+        if not hasattr(selectedObject.Proxy, 'isBooleanMesh') or not selectedObject.Proxy.isBooleanMesh:
+            continue
+        
+        return (selectedObject.Proxy, selectedObject.Label)
+    
+    return notFound
+
+def findSelectedBaseFeature():
+    selection = FreeCADGui.Selection.getSelection()
+
+    if len(selection) < 1:
+        return None
+    
+    for selectedObject in selection:
+        if hasattr(selectedObject, 'Mesh') and selectedObject.Mesh and isinstance(selectedObject.Mesh, Mesh.Mesh):
+            return selectedObject
+
+        if hasattr(selectedObject, 'Shape') and selectedObject.Shape:
+            return selectedObject
+    
+    return None
+
+def checkOpenscadInstalled():
+    found = True
+
+    try:
+        import OpenSCADUtils
+
+        found = OpenSCADUtils.getopenscadversion() is not None
+    except:
+        found = False
+    
+    if not found:
+        qtutils.showInfo('OpenSCAD import failed', 'The import of OpenSCADUtils failed. Make sure you have OpenSCAD installed and configured in the preferences.')
+    
+    return found
+
 def vectorAtGround(vector):
   return FreeCAD.Vector(vector.x, vector.y, 0)
 

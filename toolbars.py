@@ -26,3 +26,7 @@ import make_solid
 import measure
 import show_pointcloud
 import cancel_task
+
+# boolean tools
+import create_boolean_add
+import create_boolean_subtract
