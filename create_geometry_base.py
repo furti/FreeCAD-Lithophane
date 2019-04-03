@@ -9,20 +9,23 @@ import utils.qtutils as qtutils
 from base_lithophane_processor import BaseLithophaneProcessor
 
 
-class CreateGeometryBase(BaseLithophaneProcessor):
-    def __init__(self, description):
-        super(BaseLithophaneProcessor, self).__init__(description)
-
-    def checkExecution(self):
-        lithophaneImage, imageLabel = lithophane_utils.findSelectedImage()
+class CreateGeometryBase(object):
+    def Activated(self):
+        lithophaneImage, imageLabel, documentObject = lithophane_utils.findSelectedImage(
+            True)
 
         if lithophaneImage is None:
             qtutils.showInfo("No LithophaneImage selected",
                              "Select exactly one LithophaneImage to continue")
 
-            return None
+            return
 
-        return (lithophaneImage, imageLabel)
+        self.createGeometryInstance(documentObject, imageLabel)
+
+        lithophane_utils.recomputeView()
+
+    def createGeometryInstance(self, documentObject, imageLabel):
+        raise NotImplementedError
 
     def IsActive(self):
         """There should be at least an active document."""

@@ -3,22 +3,19 @@
 import math
 
 import FreeCAD
-# import FreeCADGui
 import Mesh
-# import Part
-# import MeshPart
 
 import lithophane_utils
-# from utils.timer import Timer, computeOverallTime
 from utils.resource_utils import iconPath
 from create_geometry_base import CreateGeometryBase
 from utils import geometry_utils
+from boolean_mesh import BooleanMesh
+from boolean_mesh import ViewProviderBooleanMesh
 
 
 class ProcessingParameters(object):
-    def __init__(self, image, imageLabel):
+    def __init__(self, image):
         self.image = image
-        self.imageLabel = imageLabel
         self.radius = self.calculateRadius()
         self.numberOfPointsPerLine = self.calculateNumberOfPoints()
         self.pointToPointAngle = self.caclulateAngle()
@@ -44,30 +41,29 @@ class ProcessingParameters(object):
         return pointToPointAngle
 
 
-class CreateTubeCommand(CreateGeometryBase):
-    toolbarName = 'Image_Tools'
-    commandName = 'Create_Tube'
+class CylindricalLithophane(BooleanMesh):
+    def __init__(self, obj):
+        super().__init__(obj)
 
-    def __init__(self):
-        super(CreateGeometryBase, self).__init__('CreateTube')
+    def getDescription(self):
+        return 'CreateCylinder'
 
-    def GetResources(self):
-        return {'MenuText': "Create Tube",
-                'ToolTip': "Creates the geometry of the selected Lithophane Image in the shape of a Tube",
-                'Pixmap': iconPath('CreateTube.svg')}
+    def getIcon(self):
+        return iconPath('CreateTube.svg')
 
-    def getProcessingSteps(self, fp):
+    def getBaseProcessingSteps(self, obj):
         return [('Inner Tube', self.makeInnerTube),
                 ('Outer Tube', self.makeOuterTube),
                 ('Bottom Circle', self.makeBottomCircle),
                 ('Top Circle', self.makeTopCircle),
                 ('Merge Meshes', self.mergeMeshes),
-                ('Optimize Mesh', self.optimizeMesh),
-                ('Display Mesh', self.displayMesh)]
+                ('Optimize Mesh', self.optimizeMesh)]
 
-    def makeInnerTube(self, imageAndLabel):
-        processingParameters = ProcessingParameters(
-            imageAndLabel[0], imageAndLabel[1])
+    def extractBaseMesh(self, obj, processingParameters):
+        return processingParameters.tube
+
+    def makeInnerTube(self, obj, image):
+        processingParameters = ProcessingParameters(image)
         height = processingParameters.image.width()
 
         facets = []
@@ -100,7 +96,7 @@ class CreateTubeCommand(CreateGeometryBase):
 
         return processingParameters
 
-    def makeOuterTube(self, processingParameters):
+    def makeOuterTube(self, obj, processingParameters):
         lines = processingParameters.image.lines
         facets = []
 
@@ -157,7 +153,7 @@ class CreateTubeCommand(CreateGeometryBase):
 
         return processingParameters
 
-    def makeBottomCircle(self, processingParameters):
+    def makeBottomCircle(self, obj, processingParameters):
         facets = []
         line = processingParameters.image.lines[0]
 
@@ -196,21 +192,21 @@ class CreateTubeCommand(CreateGeometryBase):
 
         return processingParameters
 
-    def makeBottomCircle(self, processingParameters):
+    def makeBottomCircle(self, obj, processingParameters):
         line = processingParameters.image.lines[0]
         processingParameters.bottomCircle = self.makeCircle(
             processingParameters, line)
 
         return processingParameters
 
-    def makeTopCircle(self, processingParameters):
+    def makeTopCircle(self, obj, processingParameters):
         line = processingParameters.image.lines[-1]
         processingParameters.topCircle = self.makeCircle(
             processingParameters, line, True)
 
         return processingParameters
 
-    def mergeMeshes(self, processingParameters):
+    def mergeMeshes(self, obj, processingParameters):
         processingParameters.tube = Mesh.Mesh()
         processingParameters.tube.addMesh(processingParameters.innerTube)
         processingParameters.tube.addMesh(processingParameters.outerTube)
@@ -219,23 +215,10 @@ class CreateTubeCommand(CreateGeometryBase):
 
         return processingParameters
 
-    def optimizeMesh(self, processingParameters):
+    def optimizeMesh(self, obj, processingParameters):
         processingParameters.tube.removeDuplicatedPoints()
 
         return processingParameters
-
-    def displayMesh(self, processingParameters):
-        # Mesh.show(processingParameters.innerTube,
-        #           processingParameters.imageLabel + '_InnerTube')
-        # Mesh.show(processingParameters.outerTube,
-        #           processingParameters.imageLabel + '_OuterTube')
-        # Mesh.show(processingParameters.bottomCircle,
-        #           processingParameters.imageLabel + '_BottomCircle')
-        # Mesh.show(processingParameters.topCircle,
-        #           processingParameters.imageLabel + '_TopCircle')
-        Mesh.show(processingParameters.tube,
-                  processingParameters.imageLabel + '_Tube')
-        lithophane_utils.recomputeView()
 
     def makeCircle(self, processingParameters, line, top=False):
         facets = []
@@ -276,6 +259,25 @@ class CreateTubeCommand(CreateGeometryBase):
                 facets.extend([leftInner, rightInner, rightOuter])
 
         return Mesh.Mesh(facets)
+
+
+class CreateTubeCommand(CreateGeometryBase):
+    toolbarName = 'Image_Tools'
+    commandName = 'Create_Tube'
+
+    def GetResources(self):
+        return {'MenuText': "Create Tube",
+                'ToolTip': "Creates the geometry of the selected Lithophane Image in the shape of a Tube",
+                'Pixmap': iconPath('CreateTube.svg')}
+
+    def createGeometryInstance(self, documentObject, imageLabel):
+        obj = FreeCAD.ActiveDocument.addObject(
+            "App::FeaturePython", imageLabel + '_Mesh')
+
+        CylindricalLithophane(obj)
+        ViewProviderBooleanMesh(obj.ViewObject)
+
+        obj.LithophaneImage = documentObject
 
 
 if __name__ == "__main__":
