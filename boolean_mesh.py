@@ -6,6 +6,7 @@ import Mesh
 from base_lithophane_processor import BaseLithophaneProcessor
 from utils.resource_utils import iconPath
 import utils.qtutils as qtutils
+from utils import preferences
 
 MODE_MAPPING = {
     'Additive': 'union',
@@ -130,7 +131,7 @@ class ViewProviderBooleanMeshFeature(object):
 
     def getDefaultDisplayMode(self):
         return "Standard"
-    
+
     def __getstate__(self):
         '''We do not store any data for now'''
         pass
@@ -148,7 +149,7 @@ class BooleanMesh(object):
 
     def getDescription(self):
         raise NotImplementedError
-    
+
     def getIcon(self):
         return None
 
@@ -188,15 +189,42 @@ class BooleanMesh(object):
             description + " (Base)", self.checkBaseMeshExecution, self.extractBaseMesh, self.getBaseProcessingSteps)
         baseMeshProcessor.execute(obj)
 
-        mesh = baseMeshProcessor.result
-
-        if len(obj.Features) > 0:
-            for meshFeature in obj.Features:
-                mesh = meshFeature.Proxy.applyOperationToMesh(mesh)
+        if preferences.useBlenderForBooleanOperations():
+            mesh = self.executeBlender(baseMeshProcessor.result, obj)
+        else:
+            mesh = self.executeOpenSCAD(baseMeshProcessor.result, obj)
 
         resultMesh.addMesh(mesh)
 
         obj.Result.Mesh = resultMesh
+
+    def executeOpenSCAD(self, basemesh, obj):
+        print('scad')
+        if len(obj.Features) == 0:
+            return basemesh
+
+        mesh = basemesh
+
+        for meshFeature in obj.Features:
+            mesh = meshFeature.Proxy.applyOperationToMesh(mesh)
+
+        return mesh
+
+    def executeBlender(self, basemesh, obj):
+        print('blender')
+        if len(obj.Features) == 0:
+            return basemesh
+
+        from blender import blender_processor
+
+        operations = [(feature.Proxy.mesh, feature.Mode, feature.Name)
+                      for feature in obj.Features if feature.Enabled]
+        
+        # no operations enabled
+        if len(operations) == 0:
+            return basemesh
+
+        return blender_processor.applyBooleanOperations(basemesh, operations)
 
     def addAdditiveFeature(self, base):
         createFeature(self.Object, base, 'Additive')
@@ -271,10 +299,10 @@ class ViewProviderBooleanMesh():
 
     def getDefaultDisplayMode(self):
         return "Standard"
-    
+
     def getIcon(self):
         return self.BooleanMesh.getIcon()
-    
+
     def __getstate__(self):
         '''We do not store any data for now'''
         pass

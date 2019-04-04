@@ -1,1 +1,5 @@
-# Empty for now. Nothing special to initialize
+# Setup Preferences
+
+from utils import preferences
+
+preferences.setupParameters()
