@@ -118,6 +118,8 @@ Creates the Lithophane geometry in the shape of a box with the image on top of i
 
 The name of the resulting mesh will be taken from the selected LithophaneImage. When the selected image is named `Windmill` the resulting mesh will be named `Windmill_Box`.
 
+See `Boolean Mesh` for more informations on the genereated object.
+
 ![Final Geometry](./Resources/Documentation/geometry_3dview.png)
 
 More Features might follow: https://github.com/furti/FreeCAD-Lithophane/issues/15
@@ -128,6 +130,8 @@ More Features might follow: https://github.com/furti/FreeCAD-Lithophane/issues/1
 Creates the Lithophane geometry in the shape of a Tube or Cylinder with the image wraped around. You have to select the LithophaneImage in the TreeView before executing the command.
 
 The name of the resulting mesh will be taken from the selected LithophaneImage. When the selected image is named `Windmill` the resulting mesh will be named `Windmill_Tube`.
+
+See `Boolean Mesh` for more informations on the genereated object.
 
 ![Final Geometry](./Resources/Documentation/geometry_tube.png)
 
@@ -192,7 +196,42 @@ Cancels the current running operation. The operation will not be canceled immedi
 
 This is useful for cancelling long running tasks (e.g. you imported a way to big image).
 
+### Boolean Add
+![Boolean Add](./Resources/Icons/BooleanMeshFeatureAdd.svg)
+
+Adds an additive Boolean Feature to the selected Boolean Mesh.
+
+To use this command you have to select a Boolean Mesh and a base feature. The base feature can either be a FreeCAD Mesh object or anything that has a valid Shape property. It does not matter in what order you select the two objects.
+
+See `Boolean Mesh` for more informations.
+
+### Boolean Subtract
+![Boolean Subtract](./Resources/Icons/BooleanMeshFeatureSubtract.svg)
+
+Adds an subtractive Boolean Feature to the selected Boolean Mesh.
+
+To use this command you have to select a Boolean Mesh and a base feature. The base feature can either be a FreeCAD Mesh object or anything that has a valid Shape property. It does not matter in what order you select the two objects.
+
+See `Boolean Mesh` for more informations.
+
 </details>
+
+## Boolean Mesh
+
+A Boolean Mesh is a FreeCAD Object that builds a Mesh from a linked LithophaneImage. Additionally one can apply boolean operations to the generated mesh. This boolean Operations behave similar to features in a PartDesign Object. They are applied in order they are added to the Boolean Mesh.
+
+![Boolean Mesh](./Resources/Documentation/boolean_mesh.png)
+
+The following Boolean Operations are currently available:
+ - **Add**: Adds the base features geometry to the mesh
+ - **Subtract**: Subtracts the base features geometry from the mesh
+
+The Boolean Mesh also has a Mesh called "Result" linked to it. This is always the last child displayed in the Tree View. This holds the final geometry when all boolean operations are applied to the Mesh generated from the Lithophane Image.
+
+A Boolean Operation has the following properties:
+ - **Base**: The Object that is used to generate the geometry for addition or substraction. Can be a Mesh or something that has a Shape.
+ - **Enabled**: When set to true the operation will be applied. When set to false the operation will be skipped.
+ - **Mode**: The mode (Add, Subtract) the operation is working in.
 
 ## Progress Indicator
 
