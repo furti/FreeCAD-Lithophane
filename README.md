@@ -233,6 +233,18 @@ A Boolean Operation has the following properties:
  - **Enabled**: When set to true the operation will be applied. When set to false the operation will be skipped.
  - **Mode**: The mode (Add, Subtract) the operation is working in.
 
+To apply Boolean Operations to a mesh you either have to install ```OpenSCAD``` or ```Blender``` and configure one of them in FreeCAD.
+
+### OpenSCAD
+If you want to use OpenSCAD for Boolean Operations, switch to the ```OpenSCAD``` Workbench and go to ```Edti > Preferences > OpenSCAD``` and set the ```OpenSCAD executable``` path.
+
+OpenSCAD has some Performance limitations when used on bigger meshes. So use this with caution.
+
+### Blender
+If you want to use Blender for Boolean Operations, go to ```Tools > Edit Parameters``` and select ```Plugins > Furti > Lithophane```. Set ```BlenderExecutable``` to your Blender installation and ```UseBlenderForBooleanOperations``` to true.
+
+Blender is a lot faster than OpenSCAD when it comes to Boolean operations.
+
 ## Progress Indicator
 
 Commands that might take a while to recompute display a progress indicator in the bottom right corner of the FreeCAD window. So you can guess how long the command might take to finish.
