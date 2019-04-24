@@ -61,6 +61,12 @@ class BooleanMeshFeature(object):
         else:
             self.mesh = MeshPart.meshFromShape(base.copy(False))
 
+    def getMesh(self):
+        if not self.mesh:
+            self.execute(self.Object)
+
+        return self.mesh
+
     def applyOperationToMesh(self, mesh):
         if not self.Object.Enabled:
             return mesh
@@ -69,10 +75,12 @@ class BooleanMeshFeature(object):
 
         openscadOperation = MODE_MAPPING[self.Object.Mode]
 
-        return OpenSCADUtils.meshoptempfile(openscadOperation, (mesh, self.mesh))
+        return OpenSCADUtils.meshoptempfile(openscadOperation, (mesh, self.getMesh()))
 
     def setProperties(self, obj):
         self.Object = obj
+        self.mesh = None
+
         pl = obj.PropertiesList
 
         if not 'Base' in pl:
@@ -199,7 +207,6 @@ class BooleanMesh(object):
         obj.Result.Mesh = resultMesh
 
     def executeOpenSCAD(self, basemesh, obj):
-        print('scad')
         if len(obj.Features) == 0:
             return basemesh
 
@@ -211,15 +218,14 @@ class BooleanMesh(object):
         return mesh
 
     def executeBlender(self, basemesh, obj):
-        print('blender')
         if len(obj.Features) == 0:
             return basemesh
 
         from blender import blender_processor
 
-        operations = [(feature.Proxy.mesh, feature.Mode, feature.Name)
+        operations = [(feature.Proxy.getMesh(), feature.Mode, feature.Name)
                       for feature in obj.Features if feature.Enabled]
-        
+
         # no operations enabled
         if len(operations) == 0:
             return basemesh
