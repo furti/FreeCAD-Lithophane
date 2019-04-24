@@ -233,6 +233,8 @@ A Boolean Operation has the following properties:
  - **Enabled**: When set to true the operation will be applied. When set to false the operation will be skipped.
  - **Mode**: The mode (Add, Subtract) the operation is working in.
 
+See https://furti.github.io/FreeCAD-Lithophane/#boolean_showcase for a demo.
+
 To apply Boolean Operations to a mesh you either have to install ```OpenSCAD``` or ```Blender``` and configure one of them in FreeCAD.
 
 ### OpenSCAD
