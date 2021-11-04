@@ -105,9 +105,14 @@ class CylindricalLithophane(BooleanMesh):
             if lineNumber == len(lines) - 1:
                 break
 
-            nextLine = lines[lineNumber + 1]
+            # We need to iterate the lines reversed
+            # The angle needs to be calculated in clockwise order, for the normals to point in the right direction
+            # When we start at the beginning of the line the image would be mirrored
+            nextLine = list(reversed(lines[lineNumber + 1]))
+            reversedLine = list(reversed(actualLine))
+            numberOfRows = len(reversedLine)
 
-            for rowNumber, actualPoint in enumerate(actualLine):
+            for rowNumber, actualPoint in enumerate(reversedLine):
                 # We ignore the x coordinate of the point because the radius defines our x/y coordinates
                 # To get the radius we add the z coordinate to the base radius.
                 # The higher the z coordinate, the thicker the tube at this point
@@ -115,17 +120,16 @@ class CylindricalLithophane(BooleanMesh):
                 # because the image will stand upright
 
                 actualAngle = processingParameters.pointToPointAngle * rowNumber
-                nextAngle = processingParameters.pointToPointAngle * \
-                    (rowNumber + 1)
+                nextAngle = processingParameters.pointToPointAngle * (rowNumber + 1)
 
                 actualPointNextRow = nextLine[rowNumber]
 
                 # last point means the next one is the first point
-                if rowNumber == len(actualLine) - 1:
-                    nextPointSameRow = actualLine[0]
+                if rowNumber == numberOfRows - 1:
+                    nextPointSameRow = reversedLine[0]
                     nextPointNextRow = nextLine[0]
                 else:
-                    nextPointSameRow = actualLine[rowNumber + 1]
+                    nextPointSameRow = reversedLine[rowNumber + 1]
                     nextPointNextRow = nextLine[rowNumber + 1]
 
                 actualPointCoordinates = geometry_utils.pointOnCircle(
